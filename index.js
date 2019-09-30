@@ -14,6 +14,16 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
+app.get('/clients', function (req, res) {
+	//conexion.consulta('select * from help');
+    res.sendFile(path.join(__dirname+'/src/template/clients/listClient.html'));
+});
+
+app.get('/clients/new', function (req, res) {
+	//conexion.consulta('select * from help');
+    res.sendFile(path.join(__dirname+'/src/template/clients/newClient.html'));
+});
+
 io.on('connection', function(socket) {
     /*socket.on('new-message', function(data) {
         messages.push(data);
