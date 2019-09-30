@@ -4,6 +4,7 @@ const path = require('path');
 var request=require('request');
 var conexion=require('./src/js/conexiondb.js')
 
+app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
 	conexion.consulta('select * from help');
