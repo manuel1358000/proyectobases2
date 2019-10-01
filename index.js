@@ -5,6 +5,9 @@ var io = require('socket.io')(server);
 const path = require('path');
 var conexion=require('./src/js/conexiondb.js')
 
+//Archivos de bancos
+var bancos = require('./src/Bancos/Bancos.js')
+
 
 app.use(express.static('src')); //Serves resources from public folder
 
