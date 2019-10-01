@@ -17,11 +17,19 @@ app.get('/', function (req, res) {
 });
 
 /*Bancos */
-app.get('/Bancos', function (req, res) {
+app.get('/bancos', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/Bancos/HTML/Principal.html')); //listado
 });
-app.get('/Bancos/nuevo', function (req, res) {
+app.get('/bancos/nuevo', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/Bancos/HTML/creacion.html')); //creacion
+});
+
+/*Agencias*/
+app.get('/agencias', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/principal.html')); //listado
+});
+app.get('/agencias/nuevo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/creacion.html')); //creacion
 });
 
 /*Clientes*/
@@ -55,7 +63,20 @@ io.on('connection', function(socket) {
         }catch (err) {
             console.error(err);
         }
-        });
+    });
+
+    //Listado de agencias
+    socket.on('obtener-agencias',async function(data){
+        //Open Conexion
+        try {
+            console.log('Iniciazlizando modulo de BD');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select cod_agencia, direccion, fecha_apertura, banco_cod_lote from agencia;');
+            socket.emit('enviar-agencia',result.rows);
+        }catch (err) {
+            console.error(err);
+        }
+    });
 
     //borrar usuario
     socket.on('delete-user',async function(data){
