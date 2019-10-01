@@ -14,8 +14,3 @@ app.get('/Bancos', function (req, res) {
 app.route('/Bancos/Ingreso').get(function(req,res){
     res.sendFile(__dirname+'/src/Bancos/creacion.html');
 });
-
-//Eliminacion
-
-
-//Modificacion

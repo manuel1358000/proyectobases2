@@ -6,9 +6,9 @@ var oracledb = require('oracledb');
 function consulta(query){
 	conexion=oracledb.getConnection(
 	{
-    	user          : "system",
-    	password      : "bases2",
-    	connectString : "localhost/XE"
+    	user          : "cris",
+    	password      : "holamundo",
+    	connectString : "localhost/orcl"
   	},
   	function(err, connection){
     if (err) { console.error(err); return; }
@@ -20,5 +20,4 @@ function consulta(query){
       		});
   	});
 }
-
 module.exports.consulta = consulta;

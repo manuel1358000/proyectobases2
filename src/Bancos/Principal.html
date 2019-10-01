@@ -1,0 +1,29 @@
+<div data-include="/common/header.html"></div>
+  <div class="container">
+    <!-- write your html code here-->
+    <button type="button" class="btn btn-outline-dark" onclick="location.href='/Banco/nuevo';">Create Nuevo Banco</button>
+    <h3>Bancos</h3>
+    <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Codigo Lote</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Cantidad Docs</th>
+            <th scope="col">Total</th>
+            <th scope="col">Estados</th>
+          </tr>
+        </thead>
+        <tbody id="tablaBancos">
+        </tbody>
+      </table>
+  </div>
+  <script src="/js/csi.min.js"></script>
+  <script src="/js/client-js/list-client-script.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script>
+    socket.emit('obtener-bancos',null);
+  </script>
+</body>
+</html>

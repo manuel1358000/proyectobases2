@@ -1,32 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>BD2 Proyecto</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-</head>
-<body>
-
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">BD2 PROYECTO</a>
+<div data-include="/common/header.html"></div>
+    <div class="container">
+            <h2>Complete los campos</h2>
+            <div class="form-row">
+                <div class="form-group row-sm-4">
+                    <label for="ingresoLotes">Lote</label>
+                    <input type="text" class="form-control" id="ingresoLotes">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="ingresoCantidad">Cantidad Doc</label>
+                    <input type="text" class="form-control" id="ingresoCantidad">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="ingresoTotal">Total</label>
+                    <input type="text" class="form-control" id="ingresoTotal">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="ingresoEstado">Estado</label>
+                    <input type="text" class="form-control" id="ingresoEstad">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <button type="button" class="btn btn-success" onclick="creacionBanco()">Creacion Banco</button>
+                </div>
+            </div>
     </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Inicio</a></li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-    </ul>
-  </div>
-</nav>
-  
-<div class="container">
-  <h3>Pagina para ingresar bancos</h3>
-</div>
-
+  <script src="/js/csi.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script src="/js/client-js/manageDatePicker.js"></script>
+  <script src="/js/client-js/manageScriptClient.js"></script>
 </body>
 </html>
