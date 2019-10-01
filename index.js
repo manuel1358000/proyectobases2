@@ -56,11 +56,31 @@ io.on('connection', function(socket) {
     socket.on('obtener-bancos',async function(data){
         //Open Conexion
         try {
-            console.log('Iniciazlizando modulo de BD');
+            console.log('Iniciazlizan do modulo de BD');
             await database.initialize(); 
             const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado from banco');
             socket.emit('enviar-bancos',result.rows);
         }catch (err) {
+            console.error(err);
+        }
+    });
+
+    //nuevo banco 
+    //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
+    socket.on('crear-banco',async function(data){
+        try {
+            console.log('Inicializando agregar banco');
+            await database.initialize(); 
+            //casteos
+            /*data.lotes=parseInt(data.lotes);
+            data.cantidad=parseInt(data.cantidad);
+            data.total=parseInt(data.total);*/
+
+            //query
+            var strQuery ="Insert Into BANCO VALUES(" + data.lotes + ", CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
+            console.log(strQuery);
+            const result = await database.simpleExecute(strQuery);
+        } catch (err) {
             console.error(err);
         }
     });
