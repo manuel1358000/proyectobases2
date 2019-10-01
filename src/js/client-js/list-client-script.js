@@ -8,7 +8,7 @@ function loadClients(data){
         html+='<td>'+item.USUARIO+'</td>'
         html+='<td>'+item.DIRECCION+'</td>'
         html+='<td>'+item.FECHA_NACIMIENTO+'</td>'
-        html+='<td><button type="button"  class="btn btn-warning btn-sm">Editar</button><a> </a><button type="button" class="btn btn-danger btn-sm" onclick="deleteClient(\''+item.USUARIO+'\',\''+item.COD_CLIENTE+'\')">Eliminar</button></td>'
+        html+='<td><button type="button"  class="btn btn-warning btn-sm" onclick="location.href=\'/clients/'+item.COD_CLIENTE+'\';">Editar</button><a> </a><button type="button" class="btn btn-danger btn-sm" onclick="deleteClient(\''+item.USUARIO+'\',\''+item.COD_CLIENTE+'\')">Eliminar</button></td>'
         
         html+='</tr>'
     });
