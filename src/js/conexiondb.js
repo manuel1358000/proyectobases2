@@ -1,8 +1,6 @@
 
 let conexion;
 var oracledb = require('oracledb');
-
-
 function consulta(query){
 	conexion=oracledb.getConnection(
 	{
