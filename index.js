@@ -33,26 +33,35 @@ io.on('connection', function(socket) {
         io.sockets.emit('messages', messages);
     });*/
 
+    socket.on('delete-user',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            data.cod_clientex=parseInt(data.cod_clientex);
+            var strQuery ="BEGIN PROCDELETECLIENT(:cod_clientex); END;";
+            const result = await database.simpleExecute(strQuery,data);
+        } catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('get-all-users',async function(data){
         //Open Conexion
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            const result = await database.simpleExecute('select nombres, apellidos from CLIENTE');
-            //const user = result.rows[0].USER;
-            //const date = result.rows[0].SYSTIMESTAMP;
-            console.log(result.rows);
+            const result = await database.simpleExecute('select cod_cliente,nombres, apellidos,usuario,direccion,fecha_nacimiento from CLIENTE');
+            socket.emit('send_receive-all-users',result.rows);
         } catch (err) {
             console.error(err);
         }
     });
+
     socket.on('create-new-user',async function(data){
         try {
             console.log('Initializing database module');
             await database.initialize(); 
             data.dpi=parseInt(data.dpi);
             
-            //var strQuery='EXECUTE PROCCREATECLIENT(\''+data.Nombres+'\',\''+data.Apellidos+'\',\'07-10-1995\','+data.DPI+',\''+data.Direccion+'\',\''+data.Usuario+'\',\''+data.Password+'\');';
             var strQuery ="BEGIN PROCCREATECLIENT(:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery,data);
