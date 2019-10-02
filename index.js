@@ -11,6 +11,8 @@ var currentEdit =null;
 
 app.use(express.static('src')); //Serves resources from public folder
 
+app.use(express.static('src')); //Serves resources from public folder
+
 app.get('/', function (req, res) {
 	currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
@@ -117,5 +119,3 @@ io.on('connection', function(socket) {
 server.listen(3000, function() {
 	console.log('Servidor corriendo en http://localhost:3000');
 });
-
-
