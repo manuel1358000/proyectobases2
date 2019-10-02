@@ -18,7 +18,5 @@ function loadClients(data){
 function deleteClient(user,cod_cliente){
     if (confirm("Confirma la ELIMINACION de USUARIO: ["+user+"]")) {
         socket.emit('delete-user',{'cod_clientex':cod_cliente});
-        alert('eliminado exitosamente');
-        window.location.reload();
     }
 }

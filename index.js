@@ -72,6 +72,8 @@ io.on('connection', function(socket) {
             var strQuery ="BEGIN PROCDELETECLIENT(:cod_clientex); END;";
             const result = await database.simpleExecute(strQuery,data);
             socket.emit('message-action',{message:'Usuario ELIMINADO con EXITO'});
+            socket.emit('redirect-page',{url:'/clients'});
+            
         } catch (err) {
             socket.emit('message-action',{message:err});
             //console.error(err);
