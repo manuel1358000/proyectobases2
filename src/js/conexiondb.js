@@ -4,7 +4,7 @@ function consulta(query){
 	conexion=oracledb.getConnection(
 	{
     	user          : "system",
-    	password      : "bases2",
+    	password      : "Alexandria.2601",
     	connectString : "localhost/XE"
   	},
   	function(err, connection){
