@@ -2,7 +2,7 @@
 
  <div class="container">
     <!-- write your html code here-->
-    <h3>Pagina Principal Proyecto Clase Sistemas de Bases de Datos 2</h3>
+    <h3>Listado Usuarios Sistema Bancos</h3>
   </div>
   
   
@@ -19,7 +19,7 @@
                 </select>
 
             </div>
-            <button type="submit" onclick="saludar()" class="btn btn-primary">Filtrar</button>
+            <button type="submit" onclick="actualizarTabla()" class="btn btn-primary">Filtrar</button>
         </div>
     </div>
     <div class="container">
@@ -32,45 +32,15 @@
       				<th scope="col">Apellidos</th>
       				<th scope="col">Direccion</th>
       				<th scope="col">Fecha_Nacimiento</th>
+      				<th scope="col">Fecha_Contratacion</th>
       				<th scope="col">Rol</th>
       				<th scope="col">Agencia</th>
+      				<th scope="col">Ventanilla</th>
       				<th scope="col">Accion</th>
       				<th scope="col">Accion</th>
 				</tr>
 			</thead>
-			<tbody>
-				<tr>
-					<th scope="row">1</th>
-					<td>2866498534872</td>
-					<td>Manuel</td>
-					<td>Fuentes</td>
-					<td>Guatemala</td>
-					<td>12/12/2010</td>
-					<td>Administrador</td>
-					<td>USAC</td>
-					<td>
-						<button type="button" class="btn btn-info">Modificar</button>
-					</td>
-					<td>
-						<button type="button" class="btn btn-danger">Eliminar</button>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">2</th>
-					<td>287796541254</td>
-					<td>Fernando</td>
-					<td>Santos</td>
-					<td>Guatemala</td>
-					<td>12/12/2012</td>
-					<td>Administrador</td>
-					<td>USAC</td>
-					<td>
-						<button type="button" class="btn btn-info">Modificar</button>
-					</td>
-					<td>
-						<button type="button" class="btn btn-danger">Eliminar</button>
-					</td>
-				</tr>
+			<tbody id="tabla_usuarios">
 			</tbody>
 		</table>
     </div>
@@ -79,5 +49,4 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/clientSocket.js"></script>
   <script src="/js/cargaropciones.js"></script>
-  <script src="/js/conexiondb.js"></script>
 </html>
