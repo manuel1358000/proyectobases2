@@ -53,7 +53,17 @@ app.get('/cliente', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/clientes/clientes.html'));
 });
 
-      
+app.get('/clients/:uid/accounts',function(req,res){
+    currentEdit=null;
+    currentEdit=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/listAccount.html'));
+});
+
+app.get('/clients/:uid/accounts/new', function (req, res) {
+    currentEdit=null;
+    currentEdit=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
+});
       
       
 io.on('connection', function(socket) {
