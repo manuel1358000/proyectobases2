@@ -10,30 +10,30 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('src')); //Serves resources from public folder
 
-var currentEdit =null;
+var currentEdit ={};
 
 app.use(express.static('src')); //Serves resources from public folder
 
 app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
-	currentEdit=null;
+
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
 app.get('/clients', function (req, res) {
-	currentEdit=null;
+	
     res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
 });
 
 app.get('/clients/new', function (req, res) {
-	currentEdit=null;
+	
     res.sendFile(path.join(__dirname+'/src/template/clients-template/newClient.html'));
 });
 
 app.get('/clients/:uid',function(req,res){
-    currentEdit=null;
-    currentEdit=req.params.uid;
+    
+    currentEdit['client-id']=req.params.uid;
     res.sendFile(path.join(__dirname+'/src/template/clients-template/editClient.html'));
 });
 
@@ -54,14 +54,14 @@ app.get('/cliente', function (req, res) {
 });
 
 app.get('/clients/:uid/accounts',function(req,res){
-    currentEdit=null;
-    currentEdit=req.params.uid;
+    currentEdit['client-id']=req.params.uid;
+    console.log(currentEdit);
     res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/listAccount.html'));
 });
 
 app.get('/clients/:uid/accounts/new', function (req, res) {
-    currentEdit=null;
-    currentEdit=req.params.uid;
+    currentEdit['client-id']=req.params.uid;
+    console.log(currentEdit);
     res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
 });
       
@@ -128,11 +128,11 @@ io.on('connection', function(socket) {
         }
     });
     socket.on('get-user',async function(data){
-        if(currentEdit==null) return;
+        if(currentEdit['client-id']==null) return;
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_cliente,nombres,apellidos,dpi,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento,password from CLIENTE where cod_cliente='+currentEdit);
+            const result = await database.simpleExecute('select cod_cliente,nombres,apellidos,dpi,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento,password from CLIENTE where cod_cliente='+currentEdit['client-id']);
             socket.emit('send_receive-user',result.rows[0]);
         } catch (err) {
             socket.emit('message-action',{message:err});
@@ -143,7 +143,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            data['cod_clientex']=parseInt(currentEdit);
+            data['cod_clientex']=parseInt(currentEdit['client-id']);
             data.dpi=parseInt(data.dpi);
             console.log(data);
             var strQuery ="BEGIN PROCEDITCLIENT(:cod_clientex,:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
@@ -208,6 +208,40 @@ io.on('connection', function(socket) {
         console.log('Encountered error', err);
         }*/
     });
+
+    socket.on('create-new-account-user',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            data.disponible=parseFloat(data.disponible);
+            data.reserva=parseFloat(data.reserva);
+            data.saldo=parseFloat(data.saldo);
+            data['cliente_cod_cliente']=parseInt(currentEdit['client-id']);
+            console.log(data);
+            var strQuery ="BEGIN PROCCREATEACCOUNTCLIENT(:cliente_cod_cliente,:estado,:saldo,:reserva,:disponible,:fecha_apertura); END;";
+            console.log(strQuery);
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('message-action',{message:'CUENTA de Usuario CREADA con EXITO'});
+            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts/'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    socket.on('get-all-accounts-client',async function(data){
+        //Open Conexion
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select estado,nombres, apellidos,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento from CLIENTE');
+            socket.emit('send_receive-all-users',result.rows);
+        } catch (err) {
+            socket.emit('message-action',{message:err});
+            //console.error(err);
+        }
+    });
+
     socket.on('crearusuario',async function(data){
         try {
             await database.initialize();
