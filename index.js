@@ -209,20 +209,22 @@ io.on('connection', function(socket) {
         }*/
     });
 
-    socket.on('create-new-account-user',async function(data){
-        try {
-            console.log('Initializing database module');
+    socket.on('create-new-account-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCION PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
+        try {  
             await database.initialize(); 
             data.disponible=parseFloat(data.disponible);
             data.reserva=parseFloat(data.reserva);
             data.saldo=parseFloat(data.saldo);
             data['cliente_cod_cliente']=parseInt(currentEdit['client-id']);
-            console.log(data);
             var strQuery ="BEGIN PROCCREATEACCOUNTCLIENT(:cliente_cod_cliente,:estado,:saldo,:reserva,:disponible,:fecha_apertura); END;";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery,data);
             socket.emit('message-action',{message:'CUENTA de Usuario CREADA con EXITO'});
-            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts/'});
+            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts'});
         } catch (err) {
             console.log(err);
             socket.emit('message-action',{message:err});
@@ -230,12 +232,40 @@ io.on('connection', function(socket) {
     });
 
     socket.on('get-all-accounts-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCION PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
         //Open Conexion
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            const result = await database.simpleExecute('select estado,nombres, apellidos,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento from CLIENTE');
-            socket.emit('send_receive-all-users',result.rows);
+            var strQuery="SELECT CLIENTE.USUARIO,CLIENTE.COD_CLIENTE,CUENTA.COD_CUENTA,CUENTA.ESTADO,CUENTA.SALDO,CUENTA.RESERVA,CUENTA.DISPONIBLE,to_char(DETALLE_CUENTA.FECHA_APERTURA, 'DD-MM-YYYY') as fecha_apertura\n"+
+            "FROM CUENTA\n"+
+            "INNER JOIN DETALLE_CUENTA\n"+
+            "ON CUENTA.COD_CUENTA=DETALLE_CUENTA.CUENTA_COD_CUENTA\n"+
+            "INNER JOIN CLIENTE\n"+
+            "ON DETALLE_CUENTA.CLIENTE_COD_CLIENTE=CLIENTE.COD_CLIENTE\n"+
+            "where CLIENTE.COD_CLIENTE="+parseInt(currentEdit['client-id']);
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('send_receive-all-accounts-user',result.rows);
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+            //console.error(err);
+        }
+    });
+
+    socket.on('delete-account-client',async function(data){
+        try {
+            await database.initialize(); 
+            data.cod_clientex=parseInt(data.cod_clientex);
+            data.cod_cuentax=parseInt(data.cod_cuentax);
+            var strQuery ="BEGIN PROCDELETEACCOUNTCLIENT(:cod_clientex,:cod_cuentax,:fecha_aperturax); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('message-action',{message:'Cuenta de cliente  ELIMINADA con EXITO'});
+            socket.emit('redirect-page',{url:'/clients/'+data.cod_clientex+'/accounts'});
+            
         } catch (err) {
             socket.emit('message-action',{message:err});
             //console.error(err);

@@ -1,6 +1,8 @@
 <div data-include="/common/header.html"></div>
   <div class="container">
     <!-- write your html code here-->
+    
+    <strong><h3 id="_nameUserAccounts"></h3></strong>
     <button type="button" class="btn btn-outline-dark" onclick="location.href+='/new';">Create New Account</button>
     <h3>Account's User</h3>
     <table class="table">
@@ -15,7 +17,7 @@
             <th scope="col">Fecha de Apertura</th>
           </tr>
         </thead>
-        <tbody id="_tableClientsBody">
+        <tbody id="_tableAccountsClientBody">
             
         </tbody>
       </table>
@@ -27,7 +29,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/clientSocket.js"></script>
   <script>
-    //socket.emit('get-all-accounts-client',null);
+    socket.emit('get-all-accounts-client',null);
   </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ function emitCreationAccount_User(){
         var today = new Date();
         dataAccount['fecha_apertura']=today.toLocaleDateString('en-GB');
         console.log(dataAccount);
-        socket.emit('create-new-account-user', dataAccount);
+        socket.emit('create-new-account-client', dataAccount);
     }else{
         alert('Por Favor Complete Todos Los Campos');
     }
