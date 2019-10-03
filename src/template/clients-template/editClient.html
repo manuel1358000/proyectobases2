@@ -1,0 +1,80 @@
+<div data-include="/common/header.html"></div>
+ <!--
+    DatePicker
+  -->
+  <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
+  <script src="https://unpkg.com/js-datepicker"></script>
+  <!-- https://www.npmjs.com/package/js-datepicker -->
+  
+  
+    <div class="container">
+            <h2>Edite los campos</h2>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <label for="inputFirstName">Nombres</label>
+                    <input type="text" class="form-control" id="_inputNombres">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputLastName">Apellidos</label>
+                    <input type="text" class="form-control" id="_inputApellidos">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputBirthday">
+                        <span class="input-group-addon">Fecha Nacimiento <i class="glyphicon glyphicon-gift"></i></span>
+                    </label>
+                    <input type="text"  id="_inputFecha_Nac">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputDPI">
+                        <span class="input-group-addon">DPI <i class="glyphicon glyphicon-credit-card"></i></span>
+                    </label>
+                    <input type="text" class="form-control" id="_inputDPI">
+                </div>
+            </div>
+            <hr/>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <label for="inputDireccion">
+                        <span class="input-group-addon">Direccion <i class="glyphicon glyphicon-home"></i></span>
+                    </label>
+                    <input type="text" class="form-control" id="_inputDireccion">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputUsuario">
+                        <span class="input-group-addon">Usuario <i class="glyphicon glyphicon-user"></i></span>
+                    </label>
+                    <input type="text" class="form-control" id="_inputUsuario">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <label for="inputPassword">
+                        <span class="input-group-addon">Password <i class="glyphicon glyphicon-cog"></i></span>
+                    </label>
+                    <input type="password" class="form-control" id="_inputPassword">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputRPassword">Repetir Password</label>
+                    <input type="password" class="form-control" id="_inputRepetirPassword" required>
+                </div>
+                
+            </div>
+            <div class="form-row">
+                <div class="form-group col-sm-8">
+                    <button type="button" class="btn btn-success" onclick="emitEditUser()">Edit User</button>
+                </div>
+            </div>
+            
+    </div>
+  <script src="/js/csi.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script src="/js/client-js/manageDatePicker.js"></script>
+  <script src="/js/client-js/manageScriptClient.js"></script>
+  <script>
+    loadDatePicker();
+    loadFormEdit();
+  </script>
+</body>
+</html>
+
