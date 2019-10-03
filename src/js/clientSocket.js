@@ -23,3 +23,8 @@ socket.on('redirect-page',function(data){
 socket.on('send_receive-all-accounts-user',function(data){
   loadAccountsClient(data);
 });
+
+socket.on('send_receive-account-client',function(data){
+  loadAccountClient(data);
+});
+

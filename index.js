@@ -64,7 +64,13 @@ app.get('/clients/:uid/accounts/new', function (req, res) {
     console.log(currentEdit);
     res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
 });
-      
+
+app.get('/clients/:uid/accounts/:uidc',function(req,res){
+    currentEdit['client-id']=req.params.uid;
+    currentEdit['account-id']=req.params.uidc;
+    console.log(currentEdit);
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/editAccount.html'));
+});
       
 io.on('connection', function(socket) {
     socket.on('eliminarusuario',async function(data){
@@ -156,6 +162,7 @@ io.on('connection', function(socket) {
             //console.error(err);
         }
     });
+
     socket.on('delete-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -209,6 +216,48 @@ io.on('connection', function(socket) {
         }*/
     });
 
+    socket.on('edit-account-client',async function(data){
+        try {
+            await database.initialize(); 
+            console.log(data);
+            var strQuery ="BEGIN PROCEDITACCOUNTCLIENT(:cod_cuentax,:estadox); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            console.log(result);
+            socket.emit('message-action',{message:'CUENTA de cliente EDITADA con EXITO'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    socket.on('get-account-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCIONE PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
+        if(!currentEdit['account-id']){
+            socket.emit('message-action',{message:'SELECCIONE PRIMERO UNA CUENTA'});
+            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts'});
+        }
+        try {
+            await database.initialize(); 
+            var strQuery="SELECT CLIENTE.USUARIO,CLIENTE.COD_CLIENTE,CUENTA.COD_CUENTA,CUENTA.ESTADO,CUENTA.SALDO,CUENTA.RESERVA,CUENTA.DISPONIBLE,to_char(DETALLE_CUENTA.FECHA_APERTURA, 'DD-MM-YYYY') as fecha_apertura\n"+
+            "FROM CUENTA\n"+
+            "INNER JOIN DETALLE_CUENTA\n"+
+            "ON CUENTA.COD_CUENTA=DETALLE_CUENTA.CUENTA_COD_CUENTA\n"+
+            "INNER JOIN CLIENTE\n"+
+            "ON DETALLE_CUENTA.CLIENTE_COD_CLIENTE=CLIENTE.COD_CLIENTE\n"+
+            "where CLIENTE.COD_CLIENTE="+parseInt(currentEdit['client-id'])+"\n"+
+            "and CUENTA.COD_CUENTA="+parseInt(currentEdit['account-id']);
+
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('send_receive-account-client',result.rows[0]);
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
     socket.on('create-new-account-client',async function(data){
         if(!currentEdit['client-id']){
             socket.emit('message-action',{message:'SELECCION PRIMERO UN CLIENTE'});
@@ -238,7 +287,6 @@ io.on('connection', function(socket) {
         }
         //Open Conexion
         try {
-            console.log('Initializing database module');
             await database.initialize(); 
             var strQuery="SELECT CLIENTE.USUARIO,CLIENTE.COD_CLIENTE,CUENTA.COD_CUENTA,CUENTA.ESTADO,CUENTA.SALDO,CUENTA.RESERVA,CUENTA.DISPONIBLE,to_char(DETALLE_CUENTA.FECHA_APERTURA, 'DD-MM-YYYY') as fecha_apertura\n"+
             "FROM CUENTA\n"+
