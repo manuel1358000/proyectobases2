@@ -150,16 +150,14 @@ io.on('connection', function(socket) {
             console.log('Initializing database module');
             await database.initialize(); 
             data['cod_clientex']=parseInt(currentEdit['client-id']);
-            data.dpi=parseInt(data.dpi);
+            data.dpix=parseInt(data.dpix);
             console.log(data);
-            var strQuery ="BEGIN PROCEDITCLIENT(:cod_clientex,:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
+            var strQuery ="BEGIN PROCEDITCLIENT(:cod_clientex,:nombresx,:apellidosx,:fecha_nacx,:dpix,:direccionx,:usuariox,:passwordx); END;";
             const result = await database.simpleExecute(strQuery,data);
-            console.log(result);
             socket.emit('message-action',{message:'Usuario EDITADO con EXITO'});
+            socket.emit('redirect-page',{url:'/clients'});
         } catch (err) {
-            console.log(err);
             socket.emit('message-action',{message:err});
-            //console.error(err);
         }
     });
 
