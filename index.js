@@ -71,7 +71,15 @@ app.get('/clients/:uid/accounts/:uidc',function(req,res){
     console.log(currentEdit);
     res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/editAccount.html'));
 });
-      
+   
+app.get('/sign-in',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-in-template/sign-in-form.html'));
+});
+
+app.get('/sign-up',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-up-template/sign-up-form.html'));
+});
+
 io.on('connection', function(socket) {
     socket.on('eliminarusuario',async function(data){
         try {
