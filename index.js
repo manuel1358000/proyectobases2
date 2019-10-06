@@ -13,12 +13,12 @@ app.use(express.static('src')); //Serves resources from public folder
 var currentEdit =null;
 
 //Archivos de bancos
-var bancos = require('./src/Bancos/Bancos.js')
+//var bancos = require('./src/Bancos/Bancos.js')
 
 
 app.use(express.static('src')); //Serves resources from public folder
 
-app.get('/', function (req, res) {
+app.get('/', function (req, res) { 
 	currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
