@@ -1,9 +1,13 @@
 const oracledb = require('oracledb');
 async function initialize() {
   const pool = await oracledb.createPool({
-    user          : "cris",
+    /*user          : "cris",
     password      : "holamundo",
-    connectString : "localhost/orcl"
+    connectString : "localhost/orcl"*/
+    user          : "system",
+    //password      : "bases2",
+    password      : "Alexandria.2601",
+    connectString : "localhost/XE"
   });
 }
 async function close() {
