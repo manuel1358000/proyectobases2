@@ -11,6 +11,7 @@
             <th scope="col">Cantidad Docs</th>
             <th scope="col">Total</th>
             <th scope="col">Estados</th>
+            <th scope="col">Nombre</th>
           </tr>
         </thead>
         <tbody id="tablaBancos">
@@ -18,9 +19,9 @@
       </table>
   </div>
   <script src="/js/csi.min.js"></script>
-  <script src="/Bancos/JS/principal-script.js"></script>
+  <script src="/js/bancos/principal-script.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/Bancos/JS/bancosSocket.js"></script>
+  <script src="/js/bancos/bancosSocket.js"></script>
   <script>
     socket.emit('obtener-bancos',null);
   </script>

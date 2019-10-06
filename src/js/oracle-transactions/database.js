@@ -5,12 +5,13 @@ async function initialize() {
     user          : "cris",
     password      : "holamundo",
     connectString : "localhost/orcl"
-
     //Manuel
     /*user          : "system",
-    //password      : "bases2",
+    password      : "bases2",
     password      : "Alexandria.2601",
-    connectString : "localhost/XE"*/
+    connectString : "localhost/XE"
+    connectString : "localhost/XE" */
+    
   });
 }
 async function close() {

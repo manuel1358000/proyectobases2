@@ -12,8 +12,6 @@ app.use(express.static('src')); //Serves resources from public folder
 
 var currentEdit =null;
 
-//Archivos de bancos
-//var bancos = require('./src/Bancos/Bancos.js')
 
 
 app.use(express.static('src')); //Serves resources from public folder
@@ -25,20 +23,19 @@ app.get('/', function (req, res) {
 
 /*Bancos */
 app.get('/bancos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/Principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/bancos/Principal.html')); //listado
 });
 app.get('/bancos/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/creacion.html')); //creacion
+    res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
 });
 
 /*Agencias*/
 app.get('/agencias', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/agencias/principal.html')); //listado
 });
 app.get('/agencias/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/creacion.html')); //creacion
+    res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
 });
-
 /*Clientes*/
 app.get('/clients', function (req, res) {
 	currentEdit=null;
@@ -68,8 +65,9 @@ app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
 
-app.get('/cliente', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/clientes/clientes.html'));
+
+app.get('/solicitar_chequera', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
 
       
@@ -88,7 +86,7 @@ io.on('connection', function(socket) {
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_LOTE,ESTADO from BANCO');
+            const result = await database.simpleExecute('select COD_LOTE,NOMBRE from BANCO');
             io.sockets.emit('listabancos',result.rows);
         } catch (err) {
             console.error(err);
@@ -97,7 +95,8 @@ io.on('connection', function(socket) {
     socket.on('agencias',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_AGENCIA,DIRECCION from AGENCIA where BANCO_COD_LOTE='+data);
+            const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA where BANCO_COD_LOTE='+data);
+            console.log(result);
             io.sockets.emit('listaagencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -172,7 +171,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Iniciazlizando modulo de BD');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_agencia, direccion, fecha_apertura, banco_cod_lote from agencia;');
+            const result = await database.simpleExecute('select cod_agencia, direccion,fecha_apertura, banco_cod_lote,nombre from agencia');
             socket.emit('enviar-agencia',result.rows);
         }catch (err) {
             console.error(err);
@@ -184,7 +183,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Iniciazlizan do modulo de BD');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado from banco');
+            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado,nombre from banco');
             socket.emit('enviar-bancos',result.rows);
         }catch (err) {
             console.error(err);
@@ -242,8 +241,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            data.dpi=parseInt(data.dpi);
-            
+            data.dpi=parseInt(data.dpi);          
             var strQuery ="BEGIN PROCCREATECLIENT(:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery,data);
@@ -285,7 +283,14 @@ io.on('connection', function(socket) {
         } catch (err) {
             console.error(err);
         }
-  });
+    });
+    socket.on('crear_chequera',async function(data){
+        try {
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        }
+    });
 });
 
 server.listen(3000,'127.0.0.1', function() {
