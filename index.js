@@ -12,7 +12,9 @@ app.use(express.static('src')); //Serves resources from public folder
 
 var currentEdit =null;
 
-app.use(express.static('src')); //Serves resources from public folder
+//Archivos de bancos
+var bancos = require('./src/Bancos/Bancos.js')
+
 
 app.use(express.static('src')); //Serves resources from public folder
 
@@ -21,6 +23,23 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
+/*Bancos */
+app.get('/bancos', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/Principal.html')); //listado
+});
+app.get('/bancos/nuevo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/creacion.html')); //creacion
+});
+
+/*Agencias*/
+app.get('/agencias', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/principal.html')); //listado
+});
+app.get('/agencias/nuevo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/creacion.html')); //creacion
+});
+
+/*Clientes*/
 app.get('/clients', function (req, res) {
 	currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
@@ -129,7 +148,49 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:err});
         }
     });
+  //nuevo banco 
+    //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
+    socket.on('crear-banco',async function(data){
+        try {
+            console.log('Inicializando agregar banco');
+            await database.initialize(); 
+            //casteos
+            /*data.lotes=parseInt(data.lotes);
+            data.cantidad=parseInt(data.cantidad);
+            data.total=parseInt(data.total);*/
 
+            //query
+            var strQuery ="Insert Into BANCO VALUES(" + data.lotes + ", CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
+            console.log(strQuery);
+            const result = await database.simpleExecute(strQuery);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+  //Listado de agencias
+    socket.on('obtener-agencias',async function(data){
+        //Open Conexion
+        try {
+            console.log('Iniciazlizando modulo de BD');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select cod_agencia, direccion, fecha_apertura, banco_cod_lote from agencia;');
+            socket.emit('enviar-agencia',result.rows);
+        }catch (err) {
+            console.error(err);
+        }
+    });
+  //Listado de bancos
+    socket.on('obtener-bancos',async function(data){
+        //Open Conexion
+        try {
+            console.log('Iniciazlizan do modulo de BD');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado from banco');
+            socket.emit('enviar-bancos',result.rows);
+        }catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('edit-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -162,6 +223,8 @@ io.on('connection', function(socket) {
             //console.error(err);
         }
     });
+
+    //lista usuarios
     socket.on('get-all-users',async function(data){
         //Open Conexion
         try {
@@ -175,6 +238,7 @@ io.on('connection', function(socket) {
         }
     });
 
+    //crear nuevo usuario
     socket.on('create-new-user',async function(data){
         try {
             console.log('Initializing database module');
