@@ -4,7 +4,7 @@ function agregarBancos(){
 	socket.emit('bancos',null);
 	socket.on('listabancos', function(data) {
 		for(var i=0;i<data.length;i++){
-			opciones+='<option value="'+data[i].COD_LOTE+'">'+data[i].ESTADO+'</option>';
+			opciones+='<option value="'+data[i].COD_LOTE+'">'+data[i].NOMBRE+'</option>';
 		}
 		bancos.insertAdjacentHTML('beforeend',opciones);
 	});
@@ -22,7 +22,7 @@ function agregarAgencias(banco_seleccionado){
 	socket.emit('agencias',banco_seleccionado);
 	socket.on('listaagencias',function(data){
 		for(var i=0;i<data.length;i++){
-			opciones_agencias+='<option value="'+data[i].COD_AGENCIA+'">'+data[i].DIRECCION+'</option>';
+			opciones_agencias+='<option value="'+data[i].COD_AGENCIA+'">'+data[i].NOMBRE+'</option>';
 		}
 		agencia.innerHTML=opciones_agencias;
 	});

@@ -49,8 +49,9 @@ app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
 
-app.get('/cliente', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/clientes/clientes.html'));
+
+app.get('/solicitar_chequera', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
 
       
@@ -69,7 +70,7 @@ io.on('connection', function(socket) {
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_LOTE,ESTADO from BANCO');
+            const result = await database.simpleExecute('select COD_LOTE,NOMBRE from BANCO');
             io.sockets.emit('listabancos',result.rows);
         } catch (err) {
             console.error(err);
@@ -78,7 +79,7 @@ io.on('connection', function(socket) {
     socket.on('agencias',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_AGENCIA,DIRECCION from AGENCIA where BANCO_COD_LOTE='+data);
+            const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA where BANCO_COD_LOTE='+data);
             io.sockets.emit('listaagencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -178,8 +179,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            data.dpi=parseInt(data.dpi);
-            
+            data.dpi=parseInt(data.dpi);          
             var strQuery ="BEGIN PROCCREATECLIENT(:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery,data);
@@ -221,7 +221,14 @@ io.on('connection', function(socket) {
         } catch (err) {
             console.error(err);
         }
-  });
+    });
+    socket.on('crear_chequera',async function(data){
+        try {
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        }
+    });
 });
 
 server.listen(3000,'127.0.0.1', function() {

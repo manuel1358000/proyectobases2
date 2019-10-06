@@ -4,7 +4,7 @@ function mostrarAgencias(){
 	socket.emit('mostraragencias',null);
 	socket.on('listamostraragencias', function(data) {
 		for(var i=0;i<data.length;i++){
-			opciones+='<option value="'+data[i].COD_AGENCIA+'">'+data[i].DIRECCION+'</option>';
+			opciones+='<option value="'+data[i].COD_AGENCIA+'">'+data[i].NOMBRE+'</option>';
 		}
 		agencia.insertAdjacentHTML('beforeend',opciones);
 	});
