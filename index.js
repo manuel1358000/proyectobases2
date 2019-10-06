@@ -25,20 +25,19 @@ app.get('/', function (req, res) {
 
 /*Bancos */
 app.get('/bancos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/Principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/bancos/Principal.html')); //listado
 });
 app.get('/bancos/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Bancos/HTML/creacion.html')); //creacion
+    res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
 });
 
 /*Agencias*/
 app.get('/agencias', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/agencias/principal.html')); //listado
 });
 app.get('/agencias/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/Agencias/HTML/creacion.html')); //creacion
+    res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
 });
-
 /*Clientes*/
 app.get('/clients', function (req, res) {
 	currentEdit=null;
@@ -99,6 +98,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA where BANCO_COD_LOTE='+data);
+            console.log(result);
             io.sockets.emit('listaagencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -173,7 +173,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Iniciazlizando modulo de BD');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_agencia, direccion, fecha_apertura, banco_cod_lote from agencia;');
+            const result = await database.simpleExecute('select cod_agencia, direccion,fecha_apertura, banco_cod_lote,nombre from agencia');
             socket.emit('enviar-agencia',result.rows);
         }catch (err) {
             console.error(err);
@@ -185,7 +185,7 @@ io.on('connection', function(socket) {
         try {
             console.log('Iniciazlizan do modulo de BD');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado from banco');
+            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado,nombre from banco');
             socket.emit('enviar-bancos',result.rows);
         }catch (err) {
             console.error(err);

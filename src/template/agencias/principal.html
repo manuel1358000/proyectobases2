@@ -1,7 +1,7 @@
 <div data-include="/common/header.html"></div>
   <div class="container">
     <!-- write your html code here-->
-    <button type="button" class="btn btn-outline-dark" onclick="location.href='/agencia/nuevo';">Crear Nueva Agencia</button>
+    <button type="button" class="btn btn-outline-dark" onclick="location.href='/agencias/nuevo';">Crear Nueva Agencia</button>
     <h3>Agencias</h3>
     <table class="table">
         <thead class="thead-dark">
@@ -10,6 +10,7 @@
             <th scope="col">Direccion</th>
             <th scope="col">Fecha</th>
             <th scope="col">Banco</th>
+            <th scope="col">Nombre</th>
           </tr>
         </thead>
         <tbody id="tablaAgencia">
@@ -17,9 +18,9 @@
       </table>
   </div>
   <script src="/js/csi.min.js"></script>
-  <script src="/Agencias/JS/principal-script-agencias.js"></script>
+  <script src="/js/agencias/principal-script-agencias.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/Agencias/JS/bancosSocket.js"></script>
+  <script src="/js/agencias/agenciasSocket.js"></script>
   <script>
     socket.emit('obtener-agencias',null);
   </script>

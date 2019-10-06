@@ -3,9 +3,9 @@ var oracledb = require('oracledb');
 function consulta(query){
 	conexion=oracledb.getConnection(
 	{
-    	user          : "cris",
-    	password      : "holamundo",
-    	connectString : "localhost/orcl"
+    	user          : "systema",
+    	password      : "bases2",
+    	connectString : "localhost/xe"
   	},
   	function(err, connection){
     if (err) { console.error(err); return; }

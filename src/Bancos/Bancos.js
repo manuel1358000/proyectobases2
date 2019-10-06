@@ -2,8 +2,6 @@ const express = require("express");
 const app = express();
 const path = require('path');
 var request=require('request');
-var conexion=require('./src/js/conexiondb.js')
-
 //Pagina principal
 app.get('/Bancos', function (req, res) {
 	//conexion.consulta('select * from help');
