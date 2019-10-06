@@ -12,7 +12,9 @@ app.use(express.static('src')); //Serves resources from public folder
 
 var currentEdit =null;
 
-app.use(express.static('src')); //Serves resources from public folder
+//Archivos de bancos
+var bancos = require('./src/Bancos/Bancos.js')
+
 
 app.use(express.static('src')); //Serves resources from public folder
 
