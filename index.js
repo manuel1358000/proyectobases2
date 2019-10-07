@@ -62,6 +62,9 @@ app.get('/administracion', function (req, res) {
 app.get('/usuarios', function (req, res) {
 	res.sendFile(path.join(__dirname+'/src/template/usuarios/usuarios.html'));
 });
+app.get('/roles', function (req, res) {
+	res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
+});
 app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
