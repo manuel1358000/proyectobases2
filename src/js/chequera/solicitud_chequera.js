@@ -15,7 +15,7 @@ function solicitarChequera(){
 		ultimo_cheque:ultimo_cheque
 	};
 	socket.emit('crear_chequera',data);
-
+	alert('El cliente no tiene una cuenta asociada');
 
 
 }
