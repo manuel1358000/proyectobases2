@@ -8,7 +8,7 @@ function cargarRoles(){
 			info_tabla+='<tr><th>'+data[i].COD_ROL+'</th>';
 			info_tabla+='<th>'+data[i].NOMBRE+'</th><th>'+data[i].DESCRIPCION+'</th>';
 			info_tabla+='<th>'+data[i].RANGO+'</th>';
-			info_tabla+='<td><button type="button" class="btn btn-info" >Modificar</button></td>'
+			info_tabla+="<td><button type='button' class='btn btn-info' onclick=\"window.location.href='/rol/"+data[i].COD_ROL+"'\">Modificar</button></td>"
 			info_tabla+='<td><button type="button" onclick="eliminarRol('+data[i].COD_ROL+')" class="btn btn-danger">Eliminar</button></td></tr>';
 		}	
 		tabla_roles.innerHTML=info_tabla;

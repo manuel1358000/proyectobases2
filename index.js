@@ -71,7 +71,10 @@ app.get('/crear_rol', function (req, res) {
 app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
-
+app.get('/rol/:uid',function(req,res){ 
+    currentEdit['rol-id']=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
+});
 
 app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
@@ -182,6 +185,29 @@ io.on('connection', function(socket) {
             io.sockets.emit('listamostrarrol',result.rows);
         } catch (err) {
             console.error(err);
+        }
+    });
+    socket.on('updaterol',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            var strQuery ="update rol set nombre='"+data['nombre']+"',descripcion="+data['descripcion']+",rango="+data['rango']+" where cod_rol="+data['codigo'];
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('rolupdate',{message:'Rol EDITADO con EXITO'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('rolupdate',null);
+        }
+    });
+    socket.on('obtenerrol',async function(data){
+        if(currentEdit['rol-id']==null)return;
+        try {
+            await database.initialize();
+            const result=await database.simpleExecute('select cod_rol,nombre,descripcion,rango from rol where cod_rol='+currentEdit['rol-id']);
+            socket.emit('inforol',result.rows[0]);
+        } catch (err) {
+            socket.emit('inforol',null);
+            //socket.emit('message-action',{message:err});
         }
     });
     socket.on('get-user',async function(data){

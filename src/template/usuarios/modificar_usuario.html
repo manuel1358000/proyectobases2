@@ -1,0 +1,43 @@
+<div data-include="/common/header.html"></div>
+	<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
+  	<script src="https://unpkg.com/js-datepicker"></script>
+	<div class="container">
+		<h3>Crear Usuario Sistema Bancos</h3>
+	</div>
+	<div class="container">
+		<form action='/usuarios' method='GET'>
+    			<label for="inputFieldD">DPI</label>
+    			<input type="number" class="form-control" id="id_dpi" min="0" oninput="this.value = Math.abs(this.value)" required>
+    			<label for="inputFieldN">NOMBRES</label>
+    			<input type="text" class="form-control" id="id_nombre" required>
+  				<label for="inputFieldA">APELLIDO</label>
+    			<input type="text" class="form-control" id="id_apellido" required>
+  				<label for="inputFieldD">DIRECCION</label>
+    			<input type="text" class="form-control" id="id_direccion" required="">
+  				<label for="inputFieldN">FECHA NACIMIENTO</label>
+    			<input type="text" class="form-control" id="id_nacimiento" required="">
+  				<label for="inputFieldC">FECHA CONTRATACION</label>
+    			<input type="text" class="form-control" id="id_contratacion" required="">
+  				<label for="inputFieldR">ROL</label>
+    			<select class="form-control" id="id_rol" required>
+    			</select>
+  				<label for="inputFieldA">AGENCIA</label>
+    			<select class="form-control" id="id_agencia" required>
+    			</select>
+  				<label for="inputFieldV">VENTANILLA</label>
+    			<input type="number" class="form-control" id="id_ventanilla" min="0" oninput="this.value = Math.abs(this.value)" required="">
+  			<br>
+			<button onclick="enviarFormulario()" onclick="window.location.href='/usuarios'" class="btn btn-primary">CREAR USUARIO</button>
+  			<a class="btn" href="/usuarios"> Cancel </a>
+		</form>
+	</div>
+	<script src="/js/csi.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/js/clientSocket.js"></script>
+	<script src="/js/usuario-js/crearusuario.js"></script>
+	<script src="/js/manageDatePicker.js"></script>	
+	<script>loadDatePicker();</script>
+	<script>mostrarAgencias();</script>
+	<script>mostrarRol();</script>
+</body>
+</html>
