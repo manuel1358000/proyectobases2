@@ -65,6 +65,9 @@ app.get('/usuarios', function (req, res) {
 app.get('/roles', function (req, res) {
 	res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
 });
+app.get('/crear_rol', function (req, res) {
+	res.sendFile(path.join(__dirname+'/src/template/roles/crear_rol.html'));
+});
 app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
@@ -111,6 +114,15 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+    socket.on('eliminar_rol',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from ROL where COD_ROL='+data);
+            io.sockets.emit('rol_eliminado',result);
+        } catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
@@ -141,6 +153,15 @@ io.on('connection', function(socket) {
                 io.sockets.emit('listausuarios',result.rows);
             }
             
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    socket.on('solicitar_roles',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('select * from ROL');
+            io.sockets.emit('lista_roles',result.rows);
         } catch (err) {
             console.error(err);
         }
