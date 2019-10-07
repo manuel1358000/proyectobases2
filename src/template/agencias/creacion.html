@@ -1,6 +1,12 @@
 <div data-include="/common/header.html"></div>
+
+  <!--DatePicker-->
+  <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
+  <script src="https://unpkg.com/js-datepicker"></script>
+  <!---->>
+
     <div class="container">
-            <h2>Complete los campos</h2>
+            <h2>Nueva Agencia</h2>
             <div class="form-row">
                 <div class="form-group row-sm-4">
                     <label for="inputNombre">Nombre</label>
@@ -8,11 +14,11 @@
                 </div>
                 <div class="form-group row-sm-4">
                     <label for="inputDireccion">Direccion</label>
-                    <input type="text" class="form-control" id="_inputCantidad">
+                    <input type="text" class="form-control" id="_inputDireccion">
                 </div>
                 <div class="form-group row-sm-4">
-                    <label for="inputFecha">Fecha Apertura</label>
-                    <input type="text" class="form-control" id="_inputTotal">
+                    <label for="inputBirthday">Fecha Apertura</label>
+                    <input type="text" class="form-control"  id="_inputFecha_Nac">
                 </div>
                 <div class="form-group row-sm-4">
                     <label for="inputbanco">Banco</label>
@@ -22,7 +28,7 @@
             </div>
             <div class="form-row">
                 <div class="form-group col-sm-6">
-                    <button type="button" class="btn btn-success" onclick="creacionAgencia()">Creacion Agencia</button>
+                    <button type="button" class="btn btn-success" onclick="creacionAgencias()">Creacion Agencia</button>
                 </div>
             </div>
     </div>
@@ -31,5 +37,8 @@
   <script src="/js/client-js/manageDatePicker.js"></script>
   <script src="/js/clientSocket.js"></script>
   <script src="/js/agencias/adminAgencias.js"></script>
+  <script>
+    loadDatePicker();
+  </script>
 </body>
 </html>

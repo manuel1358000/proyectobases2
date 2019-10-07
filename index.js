@@ -146,26 +146,39 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:err});
         }
     });
-  //nuevo banco 
+    //nuevo banco 
     //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
     socket.on('crear-banco',async function(data){
         try {
             console.log('Inicializando agregar banco');
             await database.initialize(); 
-            //casteos
-            /*data.lotes=parseInt(data.lotes);
-            data.cantidad=parseInt(data.cantidad);
-            data.total=parseInt(data.total);*/
-
-            //query
+             //query
             var strQuery ="Insert Into BANCO(Nombre, fecha, cantidad_doc,total, estado) VALUES('" + data.nombre + "', CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery);
+            socket.emit('redirect-page',{url:'/bancos'});
         } catch (err) {
             console.error(err);
         }
     });
-  //Listado de agencias
+
+    //nueva agencia
+    socket.on('crear-agencia',async function(data){
+        try {
+            console.log('Inicializando agregar agencia');
+            await database.initialize(); 
+            //query
+            var insert = "Insert into agencia(direccion, fecha_apertura, banco_cod_lote, nombre) ";
+            var values = "Values( '" + data.direccion +"','" + data.fecha + "'," + data.banco + ",'" + data.nombre  +"' ) ";
+            var strQuery = insert + values;
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('redirect-page',{url:'/agencias'});
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    
+    //Listado de agencias
     socket.on('obtener-agencias',async function(data){
         //Open Conexion
         try {

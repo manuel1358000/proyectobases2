@@ -1,34 +1,34 @@
 function creacionAgencias(){
-    const dataUser = validacionAgencia();
+    const dataUser = validacionAgencias();
     if(dataUser!=null){
         console.log(dataUser);
-        socket.emit('obtener-agencia', null);
         socket.emit('crear-agencia', dataUser);
     }else{
         alert('Por Favor Complete Todos Los Campos');
     }
 }
 
+//obtengo los input y si alguno es nulo entonces mando que se tiene que llenar todo el form
 function validacionAgencias(){
-    let arrayKey = ['Nombre','Direccion','Fecha','Banco'];
     var dataUser = {};
     var someNull=false;
-    //aqui esta por elemento
+    
+    var elementoNombre = document.getElementById("_inputNombre"); 
+    var elementoDireccion = document.getElementById("_inputDireccion");
+    var elementoFecha = document.getElementById("_inputFecha_Nac");
+    var elementoBanco = document.getElementById("inputbanco");
 
-    arrayKey.forEach(
-        key=>{            
-            var elementDiv=document.getElementById('_input'+key);
-            if(elementDiv.value){
-                dataUser[key.toLowerCase()]= elementDiv.value;
-            }else{
-                someNull=true;
-            }
-        }
-    );
+    if(elementoNombre.value && elementoDireccion.value && elementoFecha.value){
+        dataUser["nombre"]= elementoNombre.value;
+        dataUser["direccion"]= elementoDireccion.value;
+        dataUser["fecha"]= elementoFecha.value;
+        dataUser["banco"]= elementoBanco.options[elementoBanco.selectedIndex].value;
+    }
+
     return someNull?null:dataUser;
 }
 
-
+//funcion para el select de los bancos
 function agregarBancos(){	
 	var bancos=document.getElementById('inputbanco');
 	var opciones='';
@@ -40,4 +40,6 @@ function agregarBancos(){
 		bancos.insertAdjacentHTML('beforeend',opciones);
 	});
 }
+
+//la corre la primera vez
 agregarBancos();

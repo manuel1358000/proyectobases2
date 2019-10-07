@@ -4,7 +4,7 @@ function emitCreationUser(){
     if(dataUser!=null){
         var elementDiv=document.getElementById('_inputRepetirPassword');
         if(elementDiv.value!=dataUser.password){
-            alert('Contrase`as NO COINCIDEN');
+            alert('Contraseñas NO COINCIDEN');
             dataUser=null;
         }else{
             console.log(dataUser);
