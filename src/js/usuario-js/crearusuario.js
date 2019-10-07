@@ -47,6 +47,7 @@ function enviarFormulario(){
 	};
 	socket.emit('crearusuario',valores);
 	socket.on('usuariocreado', function(data) {
+		alert('Usuario Creado con Exito');
 		
 	});	
 

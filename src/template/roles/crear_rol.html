@@ -1,0 +1,25 @@
+<div data-include="/common/header.html"></div>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>Crear Rol Sistema Bancos</h3>
+ </div>
+ <div class="container">
+    <form action='/roles' method='GET'>
+    	<label for="inputFieldD">NOMBRE</label>
+    	<input type="text" class="form-control" id="id_nombre" required>
+		<label for="inputFieldN">DESCRIPCION</label>
+    	<input type="number" class="form-control" id="id_descripcion" required>
+		<label for="inputFieldA">RANGO</label>
+		<input type="number" class="form-control" id="id_rango" required>
+  		<br>
+		<button onclick="crearRol()" class="btn btn-primary">CREAR ROL</button>
+  		<a class="btn" href="/roles"> Cancel </a>
+	</form>
+ </div>
+</body>
+ <script src="/js/csi.min.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/clientSocket.js"></script>
+ <script src="/js/roles/crear_roles.js"></script>
+</html>

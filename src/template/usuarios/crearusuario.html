@@ -1,13 +1,13 @@
-<div data-include="/common/header2.html"></div>
+<div data-include="/common/header.html"></div>
 	<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
   	<script src="https://unpkg.com/js-datepicker"></script>
 	<div class="container">
 		<h3>Crear Usuario Sistema Bancos</h3>
 	</div>
 	<div class="container">
-		<form>
+		<form action='/usuarios' method='GET'>
     			<label for="inputFieldD">DPI</label>
-    			<input type="number" class="form-control" id="id_dpi" required>
+    			<input type="number" class="form-control" id="id_dpi" min="0" oninput="this.value = Math.abs(this.value)" required>
     			<label for="inputFieldN">NOMBRES</label>
     			<input type="text" class="form-control" id="id_nombre" required>
   				<label for="inputFieldA">APELLIDO</label>
@@ -25,9 +25,9 @@
     			<select class="form-control" id="id_agencia" required>
     			</select>
   				<label for="inputFieldV">VENTANILLA</label>
-    			<input type="number" class="form-control" id="id_ventanilla" required="">
+    			<input type="number" class="form-control" id="id_ventanilla" min="0" oninput="this.value = Math.abs(this.value)" required="">
   			<br>
-			<button onclick="enviarFormulario()" class="btn btn-primary">CREAR USUARIO</button>
+			<button onclick="enviarFormulario()" onclick="window.location.href='/usuarios'" class="btn btn-primary">CREAR USUARIO</button>
   			<a class="btn" href="/usuarios"> Cancel </a>
 		</form>
 	</div>

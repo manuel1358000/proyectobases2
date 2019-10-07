@@ -169,7 +169,7 @@ io.on('connection', function(socket) {
     socket.on('mostraragencias',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_AGENCIA,DIRECCION from AGENCIA');
+            const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA');
             io.sockets.emit('listamostraragencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -426,13 +426,24 @@ io.on('connection', function(socket) {
             var mm=d.getMonth()+1;
             var yy=d.getFullYear();
             var contratacion2=yy+"/"+mm+"/"+dd; 
-            var cadena="insert into USUARIO(COD_USUARIO,DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA)values(15,"+
+            var cadena="insert into USUARIO(DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA)values("+
             +data.dpi+",'"+data.nombre+"','"+data.apellido+"','"+data.direccion+"',TO_DATE('"+nacimiento2+"','YYYY-MM-DD'),TO_DATE('"+contratacion2+"','YYYY-MM-DD'),"+data.rol+","+data.agencia+","+data.ventanilla+")";
-            console.log(cadena);
             const result = await database.simpleExecute(cadena);
-            
-            console.log(result);
             io.sockets.emit('usuariocreado','usuariocrearo');
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    socket.on('crearrol',async function(data){
+        try {
+            console.log('aqui');
+            await database.initialize();
+            console.log('aqui');
+            var cadena="insert into ROL(NOMBRE,DESCRIPCION,RANGO)values('"+
+            +data.nombre+"',"+data.descripcion+","+data.rango+")";
+            const result = await database.simpleExecute(cadena);
+            console.log(result);
+            io.sockets.emit('rolcreado',result);
         } catch (err) {
             console.error(err);
         }
