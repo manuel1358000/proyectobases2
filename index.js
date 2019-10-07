@@ -71,6 +71,10 @@ app.get('/crear_rol', function (req, res) {
 app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
+app.get('/usuario/:uid',function(req,res){ 
+    currentEdit['usuario-id']=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/usuarios/modificar_usuario.html'));
+});
 app.get('/rol/:uid',function(req,res){ 
     currentEdit['rol-id']=req.params.uid;
     res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
@@ -158,6 +162,34 @@ io.on('connection', function(socket) {
             
         } catch (err) {
             console.error(err);
+        }
+    });
+    socket.on('obtenerusuario',async function(data){
+        if(currentEdit['usuario-id']==null)return;
+        try {
+            await database.initialize();
+            const result=await database.simpleExecute('select COD_USUARIO,DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA from usuario where cod_usuario='+currentEdit['usuario-id']);
+            socket.emit('infousuario',result.rows[0]);
+        } catch (err) {
+            socket.emit('infousuario',null);
+            //socket.emit('message-action',{message:err});
+        }
+    });
+    socket.on('updateusuario',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize();
+            var ts = new Date(data['fecha_nacimiento']);
+            var fecha_nac=ts.getFullYear()+'-'+("0" + (ts.getMonth() + 1)).slice(-2)+'-'+("0" + (ts.getDay() + 1)).slice(-2);
+            var fecha_contra=data['fecha_contratacion'];
+            var ts2 = new Date(data['fecha_contratacion']);
+            var fecha_contra=ts2.getFullYear()+'-'+("0"+(ts2.getMonth() + 1)).slice(-2)+'-'+("0" + (ts2.getDay() + 1)).slice(-2); 
+            var strQuery ="update usuario set dpi="+data['dpi']+",nombres='"+data['nombres']+"',apellidos='"+data['apellidos']+"',direccion='"+data['direccion']+"',fecha_nacimiento=TO_DATE('"+fecha_nac+"','YYYY-MM-DD'),fecha_contratacion=TO_DATE('"+fecha_contra+"','YYYY-MM-DD'),rol_cod_rol="+data['rol']+",agencia_cod_agencia="+data['agencia']+",ventanilla="+data['ventanilla']+" where cod_usuario="+data['codigo'];
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('usuarioupdate','Usuario Modificado Con Exito');
+        } catch (err) {
+            console.log(err);
+            socket.emit('usuarioupdate',null);
         }
     });
     socket.on('solicitar_roles',async function(data){

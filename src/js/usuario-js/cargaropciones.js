@@ -47,7 +47,7 @@ function actualizarTabla(){
 			info_tabla+='<th>'+data[i].DIRECCION+'</th><th>'+data[i].FECHA_NACIMIENTO+'</th>';
 			info_tabla+='<th>'+data[i].FECHA_CONTRATACION+'</th><th>'+data[i].ROL_COD_ROL+'</th>';
 			info_tabla+='<th>'+data[i].AGENCIA_COD_AGENCIA+'</th><th>'+data[i].VENTANILLA+'</th>';
-			info_tabla+='<td><button type="button" class="btn btn-info" >Modificar</button></td>'
+			info_tabla+="<td><button type='button' class='btn btn-info' onclick=\"window.location.href='/usuario/"+data[i].COD_USUARIO+"'\">Modificar</button></td>"
 			info_tabla+='<td><button type="button" onclick="eliminarUsuario('+data[i].COD_USUARIO+')" class="btn btn-danger">Eliminar</button></td></tr>';
 		}	
 		tabla_usuarios.innerHTML=info_tabla;
