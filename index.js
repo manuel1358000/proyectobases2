@@ -336,6 +336,9 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             const result = await database.simpleExecute('select cod_cliente,nombres, apellidos,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento from CLIENTE');
             socket.emit('send_receive-all-users',result.rows);
+            console.log('Ingreso a Clientes');
+            console.log(result);
+            
         } catch (err) {
             socket.emit('message-action',{message:err});
             //console.error(err);
