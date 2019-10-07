@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('src')); //Serves resources from public folder
 
-var currentEdit =null;
+var currentEdit ={};
 
 
 
@@ -18,7 +18,7 @@ var currentEdit =null;
 app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
-	currentEdit=null;
+
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
@@ -39,18 +39,18 @@ app.get('/agencias/nuevo', function (req, res) {
 });
 /*Clientes*/
 app.get('/clients', function (req, res) {
-	currentEdit=null;
+	
     res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
 });
 
 app.get('/clients/new', function (req, res) {
-	currentEdit=null;
+	
     res.sendFile(path.join(__dirname+'/src/template/clients-template/newClient.html'));
 });
 
 app.get('/clients/:uid',function(req,res){
-    currentEdit=null;
-    currentEdit=req.params.uid;
+    
+    currentEdit['client-id']=req.params.uid;
     res.sendFile(path.join(__dirname+'/src/template/clients-template/editClient.html'));
 });
 
@@ -71,9 +71,33 @@ app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
 
-      
-      
-      
+app.get('/clients/:uid/accounts',function(req,res){
+    currentEdit['client-id']=req.params.uid;
+    console.log(currentEdit);
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/listAccount.html'));
+});
+
+app.get('/clients/:uid/accounts/new', function (req, res) {
+    currentEdit['client-id']=req.params.uid;
+    console.log(currentEdit);
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
+});
+
+app.get('/clients/:uid/accounts/:uidc',function(req,res){
+    currentEdit['client-id']=req.params.uid;
+    currentEdit['account-id']=req.params.uidc;
+    console.log(currentEdit);
+    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/editAccount.html'));
+});
+   
+app.get('/sign-in',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-in-template/sign-in-form.html'));
+});
+
+app.get('/sign-up',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-up-template/sign-up-form.html'));
+});
+
 io.on('connection', function(socket) {
     socket.on('eliminarusuario',async function(data){
         try {
@@ -137,11 +161,11 @@ io.on('connection', function(socket) {
         }
     });
     socket.on('get-user',async function(data){
-        if(currentEdit==null) return;
+        if(currentEdit['client-id']==null) return;
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            const result = await database.simpleExecute('select cod_cliente,nombres,apellidos,dpi,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento,password from CLIENTE where cod_cliente='+currentEdit);
+            const result = await database.simpleExecute('select cod_cliente,nombres,apellidos,dpi,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento,password from CLIENTE where cod_cliente='+currentEdit['client-id']);
             socket.emit('send_receive-user',result.rows[0]);
         } catch (err) {
             socket.emit('message-action',{message:err});
@@ -194,19 +218,18 @@ io.on('connection', function(socket) {
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            data['cod_clientex']=parseInt(currentEdit);
-            data.dpi=parseInt(data.dpi);
+            data['cod_clientex']=parseInt(currentEdit['client-id']);
+            data.dpix=parseInt(data.dpix);
             console.log(data);
-            var strQuery ="BEGIN PROCEDITCLIENT(:cod_clientex,:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
+            var strQuery ="BEGIN PROCEDITCLIENT(:cod_clientex,:nombresx,:apellidosx,:fecha_nacx,:dpix,:direccionx,:usuariox,:passwordx); END;";
             const result = await database.simpleExecute(strQuery,data);
-            console.log(result);
             socket.emit('message-action',{message:'Usuario EDITADO con EXITO'});
+            socket.emit('redirect-page',{url:'/clients'});
         } catch (err) {
-            console.log(err);
             socket.emit('message-action',{message:err});
-            //console.error(err);
         }
     });
+
     socket.on('delete-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -261,6 +284,111 @@ io.on('connection', function(socket) {
         console.log('Encountered error', err);
         }*/
     });
+
+    socket.on('edit-account-client',async function(data){
+        try {
+            await database.initialize(); 
+            console.log(data);
+            var strQuery ="BEGIN PROCEDITACCOUNTCLIENT(:cod_cuentax,:estadox); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            console.log(result);
+            socket.emit('message-action',{message:'CUENTA de cliente EDITADA con EXITO'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    socket.on('get-account-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCIONE PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
+        if(!currentEdit['account-id']){
+            socket.emit('message-action',{message:'SELECCIONE PRIMERO UNA CUENTA'});
+            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts'});
+        }
+        try {
+            await database.initialize(); 
+            var strQuery="SELECT CLIENTE.USUARIO,CLIENTE.COD_CLIENTE,CUENTA.COD_CUENTA,CUENTA.ESTADO,CUENTA.SALDO,CUENTA.RESERVA,CUENTA.DISPONIBLE,to_char(DETALLE_CUENTA.FECHA_APERTURA, 'DD-MM-YYYY') as fecha_apertura\n"+
+            "FROM CUENTA\n"+
+            "INNER JOIN DETALLE_CUENTA\n"+
+            "ON CUENTA.COD_CUENTA=DETALLE_CUENTA.CUENTA_COD_CUENTA\n"+
+            "INNER JOIN CLIENTE\n"+
+            "ON DETALLE_CUENTA.CLIENTE_COD_CLIENTE=CLIENTE.COD_CLIENTE\n"+
+            "where CLIENTE.COD_CLIENTE="+parseInt(currentEdit['client-id'])+"\n"+
+            "and CUENTA.COD_CUENTA="+parseInt(currentEdit['account-id']);
+
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('send_receive-account-client',result.rows[0]);
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    socket.on('create-new-account-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCION PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
+        try {  
+            await database.initialize(); 
+            data.disponible=parseFloat(data.disponible);
+            data.reserva=parseFloat(data.reserva);
+            data.saldo=parseFloat(data.saldo);
+            data['cliente_cod_cliente']=parseInt(currentEdit['client-id']);
+            var strQuery ="BEGIN PROCCREATEACCOUNTCLIENT(:cliente_cod_cliente,:estado,:saldo,:reserva,:disponible,:fecha_apertura); END;";
+            console.log(strQuery);
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('message-action',{message:'CUENTA de Usuario CREADA con EXITO'});
+            socket.emit('redirect-page',{url:'/clients/'+currentEdit['client-id']+'/accounts'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    socket.on('get-all-accounts-client',async function(data){
+        if(!currentEdit['client-id']){
+            socket.emit('message-action',{message:'SELECCION PRIMERO UN CLIENTE'});
+            socket.emit('redirect-page',{url:'/clients'});
+        }
+        //Open Conexion
+        try {
+            await database.initialize(); 
+            var strQuery="SELECT CLIENTE.USUARIO,CLIENTE.COD_CLIENTE,CUENTA.COD_CUENTA,CUENTA.ESTADO,CUENTA.SALDO,CUENTA.RESERVA,CUENTA.DISPONIBLE,to_char(DETALLE_CUENTA.FECHA_APERTURA, 'DD-MM-YYYY') as fecha_apertura\n"+
+            "FROM CUENTA\n"+
+            "INNER JOIN DETALLE_CUENTA\n"+
+            "ON CUENTA.COD_CUENTA=DETALLE_CUENTA.CUENTA_COD_CUENTA\n"+
+            "INNER JOIN CLIENTE\n"+
+            "ON DETALLE_CUENTA.CLIENTE_COD_CLIENTE=CLIENTE.COD_CLIENTE\n"+
+            "where CLIENTE.COD_CLIENTE="+parseInt(currentEdit['client-id']);
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('send_receive-all-accounts-user',result.rows);
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+            //console.error(err);
+        }
+    });
+
+    socket.on('delete-account-client',async function(data){
+        try {
+            await database.initialize(); 
+            data.cod_clientex=parseInt(data.cod_clientex);
+            data.cod_cuentax=parseInt(data.cod_cuentax);
+            var strQuery ="BEGIN PROCDELETEACCOUNTCLIENT(:cod_clientex,:cod_cuentax,:fecha_aperturax); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('message-action',{message:'Cuenta de cliente  ELIMINADA con EXITO'});
+            socket.emit('redirect-page',{url:'/clients/'+data.cod_clientex+'/accounts'});
+            
+        } catch (err) {
+            socket.emit('message-action',{message:err});
+            //console.error(err);
+        }
+    });
+
     socket.on('crearusuario',async function(data){
         try {
             await database.initialize();
