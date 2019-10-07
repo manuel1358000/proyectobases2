@@ -12,7 +12,8 @@ app.use(express.static('src')); //Serves resources from public folder
 
 var currentEdit ={};
 
-app.use(express.static('src')); //Serves resources from public folder
+
+
 
 app.use(express.static('src')); //Serves resources from public folder
 
@@ -21,6 +22,22 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
+/*Bancos */
+app.get('/bancos', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/bancos/Principal.html')); //listado
+});
+app.get('/bancos/nuevo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
+});
+
+/*Agencias*/
+app.get('/agencias', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/agencias/principal.html')); //listado
+});
+app.get('/agencias/nuevo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
+});
+/*Clientes*/
 app.get('/clients', function (req, res) {
 	
     res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
@@ -49,8 +66,9 @@ app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
 
-app.get('/cliente', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/clientes/clientes.html'));
+
+app.get('/solicitar_chequera', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
 
 app.get('/clients/:uid/accounts',function(req,res){
@@ -93,7 +111,7 @@ io.on('connection', function(socket) {
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_LOTE,ESTADO from BANCO');
+            const result = await database.simpleExecute('select COD_LOTE,NOMBRE from BANCO');
             io.sockets.emit('listabancos',result.rows);
         } catch (err) {
             console.error(err);
@@ -102,7 +120,8 @@ io.on('connection', function(socket) {
     socket.on('agencias',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_AGENCIA,DIRECCION from AGENCIA where BANCO_COD_LOTE='+data);
+            const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA where BANCO_COD_LOTE='+data);
+            console.log(result);
             io.sockets.emit('listaagencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -152,7 +171,49 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:err});
         }
     });
+  //nuevo banco 
+    //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
+    socket.on('crear-banco',async function(data){
+        try {
+            console.log('Inicializando agregar banco');
+            await database.initialize(); 
+            //casteos
+            /*data.lotes=parseInt(data.lotes);
+            data.cantidad=parseInt(data.cantidad);
+            data.total=parseInt(data.total);*/
 
+            //query
+            var strQuery ="Insert Into BANCO VALUES(" + data.lotes + ", CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
+            console.log(strQuery);
+            const result = await database.simpleExecute(strQuery);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+  //Listado de agencias
+    socket.on('obtener-agencias',async function(data){
+        //Open Conexion
+        try {
+            console.log('Iniciazlizando modulo de BD');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select cod_agencia, direccion,fecha_apertura, banco_cod_lote,nombre from agencia');
+            socket.emit('enviar-agencia',result.rows);
+        }catch (err) {
+            console.error(err);
+        }
+    });
+  //Listado de bancos
+    socket.on('obtener-bancos',async function(data){
+        //Open Conexion
+        try {
+            console.log('Iniciazlizan do modulo de BD');
+            await database.initialize(); 
+            const result = await database.simpleExecute('select cod_lote, fecha, cantidad_doc, total, estado,nombre from banco');
+            socket.emit('enviar-bancos',result.rows);
+        }catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('edit-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -184,6 +245,8 @@ io.on('connection', function(socket) {
             //console.error(err);
         }
     });
+
+    //lista usuarios
     socket.on('get-all-users',async function(data){
         //Open Conexion
         try {
@@ -197,12 +260,12 @@ io.on('connection', function(socket) {
         }
     });
 
+    //crear nuevo usuario
     socket.on('create-new-user',async function(data){
         try {
             console.log('Initializing database module');
             await database.initialize(); 
-            data.dpi=parseInt(data.dpi);
-            
+            data.dpi=parseInt(data.dpi);          
             var strQuery ="BEGIN PROCCREATECLIENT(:nombres,:apellidos,:fecha_nac,:dpi,:direccion,:usuario,:password); END;";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery,data);
@@ -349,7 +412,14 @@ io.on('connection', function(socket) {
         } catch (err) {
             console.error(err);
         }
-  });
+    });
+    socket.on('crear_chequera',async function(data){
+        try {
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        }
+    });
 });
 
 server.listen(3000,'127.0.0.1', function() {

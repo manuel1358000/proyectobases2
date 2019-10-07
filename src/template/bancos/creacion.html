@@ -1,0 +1,34 @@
+<div data-include="/common/header.html"></div>
+    <div class="container">
+            <h2>Complete los campos</h2>
+            <div class="form-row">
+                <div class="form-group row-sm-4">
+                    <label for="inputLotes">Lote</label>
+                    <input type="text" class="form-control" id="_inputLotes">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputCantidad">Cantidad Doc</label>
+                    <input type="text" class="form-control" id="_inputCantidad">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputTotal">Total</label>
+                    <input type="text" class="form-control" id="_inputTotal">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputEstado">Estado</label>
+                    <input type="text" class="form-control" id="_inputEstado">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <button type="button" class="btn btn-success" onclick="creacionBancos()">Creacion Banco</button>
+                </div>
+            </div>
+    </div>
+  <script src="/js/csi.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script src="/js/client-js/manageDatePicker.js"></script>
+  <script src="/js/bancos/adminBancos.js"></script>
+</body>
+</html>
