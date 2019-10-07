@@ -1,5 +1,5 @@
 function creacionBancos(){
-    const dataUser = validationFormNewUser();
+    const dataUser = validacionBancos();
     if(dataUser!=null){
         console.log(dataUser);
         socket.emit('obtener-bancos', null);
@@ -9,8 +9,8 @@ function creacionBancos(){
     }
 }
 
-function validationFormNewUser(){
-    let arrayKey = ['Lotes','Cantidad','Total','Estado'];
+function validacionBancos(){
+    let arrayKey = ['Nombre','Cantidad','Total','Estado'];
     var dataUser = {};
     var someNull=false;
     arrayKey.forEach(

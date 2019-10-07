@@ -1,0 +1,35 @@
+<div data-include="/common/header.html"></div>
+    <div class="container">
+            <h2>Complete los campos</h2>
+            <div class="form-row">
+                <div class="form-group row-sm-4">
+                    <label for="inputNombre">Nombre</label>
+                    <input type="text" class="form-control" id="_inputNombre">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputDireccion">Direccion</label>
+                    <input type="text" class="form-control" id="_inputCantidad">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputFecha">Fecha Apertura</label>
+                    <input type="text" class="form-control" id="_inputTotal">
+                </div>
+                <div class="form-group row-sm-4">
+                    <label for="inputbanco">Banco</label>
+                    <select id="inputbanco"  class="form-control">
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <button type="button" class="btn btn-success" onclick="creacionAgencia()">Creacion Agencia</button>
+                </div>
+            </div>
+    </div>
+  <script src="/js/csi.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/client-js/manageDatePicker.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script src="/js/agencias/adminAgencias.js"></script>
+</body>
+</html>

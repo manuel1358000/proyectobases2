@@ -12,4 +12,4 @@ function cargarAgencias(data){
         html+='</tr>'
     });
     document.getElementById('tablaAgencia').innerHTML=html;
-}   
+}

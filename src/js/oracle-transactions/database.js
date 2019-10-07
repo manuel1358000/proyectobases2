@@ -9,7 +9,6 @@ async function initialize() {
     /*user          : "system",
     password      : "bases2",
     password      : "Alexandria.2601",
-    connectString : "localhost/XE"
     connectString : "localhost/XE" */
     
   });

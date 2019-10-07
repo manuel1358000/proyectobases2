@@ -158,7 +158,7 @@ io.on('connection', function(socket) {
             data.total=parseInt(data.total);*/
 
             //query
-            var strQuery ="Insert Into BANCO VALUES(" + data.lotes + ", CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
+            var strQuery ="Insert Into BANCO(Nombre, fecha, cantidad_doc,total, estado) VALUES('" + data.nombre + "', CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery);
         } catch (err) {
