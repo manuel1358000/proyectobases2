@@ -84,6 +84,10 @@ app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
 
+app.get('/consulta_saldos', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+});
+
 app.get('/clients/:uid/accounts',function(req,res){
     currentEdit['client-id']=req.params.uid;
     console.log(currentEdit);
@@ -296,6 +300,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+    
     socket.on('edit-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -338,8 +343,8 @@ io.on('connection', function(socket) {
             socket.emit('send_receive-all-users',result.rows);
             console.log('Ingreso a Clientes');
             console.log(result);
-            
         } catch (err) {
+            console.log(err);
             socket.emit('message-action',{message:err});
             //console.error(err);
         }
@@ -497,23 +502,30 @@ io.on('connection', function(socket) {
     });
     socket.on('crearrol',async function(data){
         try {
-            console.log('aqui');
             await database.initialize();
-            console.log('aqui');
-            var cadena="insert into ROL(NOMBRE,DESCRIPCION,RANGO)values('"+
-            +data.nombre+"',"+data.descripcion+","+data.rango+")";
+            var cadena="insert into ROL(NOMBRE,DESCRIPCION,RANGO)values('"+data.nombre+"',"+data.descripcion+","+data.rango+")";
             const result = await database.simpleExecute(cadena);
-            console.log(result);
-            io.sockets.emit('rolcreado',result);
+            socket.emit('rolcreado',result);
         } catch (err) {
             console.error(err);
         }
     });
-    socket.on('crear_chequera',async function(data){
+    socket.on('numero_cheques',async function(data){
         try {
-            console.log(data);
+            await database.initialize(); 
+            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+data['cuenta']);
+            io.sockets.emit('correlativo',result.rows[0]);
         } catch (err) {
             console.error(err);
+        }
+    });
+    socket.on('solicitar_chequera',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('insert into chequera(NO_CHEQUES,FECHA_EMISION,ESTADO,CUENTA_COD_CUENTA,ULTIMO_CHEQUE)values('+data['no_cheques']+',TO_DATE(\''+data['fecha_emision']+'\',\'YYYY-MM-DD\'),\''+data['estado']+'\','+data['cuenta_cod_cuenta']+','+data['ultimo_cheque']+')');
+            console.log(result);
+        } catch (err) {
+            console.log(err);
         }
     });
 });

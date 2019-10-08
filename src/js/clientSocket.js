@@ -12,6 +12,7 @@ socket.on('send_receive-user',function(data){
 });
 
 socket.on('message-action',function(data){
+  console.log(data.message);
   alert(data.message);
 });
 
