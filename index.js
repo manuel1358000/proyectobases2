@@ -83,6 +83,9 @@ app.get('/rol/:uid',function(req,res){
 app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
+app.get('/cancelacion_cheque', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/cheques/cancelacion_cheque.html'));
+});
 
 app.get('/consulta_saldos', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
@@ -342,7 +345,6 @@ io.on('connection', function(socket) {
             const result = await database.simpleExecute('select cod_cliente,nombres, apellidos,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento from CLIENTE');
             socket.emit('send_receive-all-users',result.rows);
             console.log('Ingreso a Clientes');
-            console.log(result);
         } catch (err) {
             console.log(err);
             socket.emit('message-action',{message:err});
@@ -525,6 +527,31 @@ io.on('connection', function(socket) {
             const result = await database.simpleExecute('insert into chequera(NO_CHEQUES,FECHA_EMISION,ESTADO,CUENTA_COD_CUENTA,ULTIMO_CHEQUE)values('+data['no_cheques']+',TO_DATE(\''+data['fecha_emision']+'\',\'YYYY-MM-DD\'),\''+data['estado']+'\','+data['cuenta_cod_cuenta']+','+data['ultimo_cheque']+')');
             console.log(result);
         } catch (err) {
+            console.log(err);
+        }
+    });
+    socket.on('rango_chequera',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('select ULTIMO_CHEQUE,NO_CHEQUES from chequera where cod_chequera='+data['chequera']);
+            io.sockets.emit('rango_cheques',result.rows[0]);
+            console.log(result.rows[0]);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    socket.on('cancelar_cheque',async function (data){
+        try{
+            var d=new Date();
+            var dd=d.getDate();
+            var mm=d.getMonth()+1;
+            var yy=d.getFullYear();
+            var fecha=yy+"/"+mm+"/"+dd;
+            await database.initialize(); 
+            var string='insert into cheque(fecha,estado,no_cheque,chequera_cod_chequera)values(TO_DATE(\''+fecha+'\',\'YYYY-MM-DD\'),\''+data['razon']+'\','+data['no_cheque']+','+data['no_chequera']+')';
+            const result = await database.simpleExecute(string);
+            console.log(result);
+        }catch(err) {
             console.log(err);
         }
     });
