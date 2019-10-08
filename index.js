@@ -14,11 +14,10 @@ var currentEdit ={};
 
 
 
-
 app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
-
+    currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
@@ -29,6 +28,11 @@ app.get('/bancos', function (req, res) {
 app.get('/bancos/nuevo', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
 });
+app.get('/bancos/editar/:uid',function(req,res){
+    currentEdit=null;
+    currentEdit=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/bancos/editar.html'));
+});
 
 /*Agencias*/
 app.get('/agencias', function (req, res) {
@@ -36,6 +40,11 @@ app.get('/agencias', function (req, res) {
 });
 app.get('/agencias/nuevo', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
+});
+app.get('/agencias/editar/:uid',function(req,res){
+    currentEdit=null;
+    currentEdit=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/agencias/editar.html'));
 });
 /*Clientes*/
 app.get('/clients', function (req, res) {
@@ -66,11 +75,9 @@ app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
 });
 
-
 app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
-
 app.get('/clients/:uid/accounts',function(req,res){
     currentEdit['client-id']=req.params.uid;
     console.log(currentEdit);
@@ -108,6 +115,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
@@ -117,6 +125,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('agencias',async function(data){
         try {
             await database.initialize(); 
@@ -127,6 +136,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('usuarios',async function(data){
         try {
             await database.initialize(); 
@@ -142,6 +152,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('mostraragencias',async function(data){
         try {
             await database.initialize(); 
@@ -151,6 +162,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('mostrarrol',async function(data){
         try {
             await database.initialize(); 
@@ -160,6 +172,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('get-user',async function(data){
         if(currentEdit['client-id']==null) return;
         try {
@@ -171,26 +184,40 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:err});
         }
     });
-  //nuevo banco 
+
+    //nuevo banco 
     //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
     socket.on('crear-banco',async function(data){
         try {
             console.log('Inicializando agregar banco');
             await database.initialize(); 
-            //casteos
-            /*data.lotes=parseInt(data.lotes);
-            data.cantidad=parseInt(data.cantidad);
-            data.total=parseInt(data.total);*/
-
-            //query
-            var strQuery ="Insert Into BANCO VALUES(" + data.lotes + ", CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
+             //query
+            var strQuery ="Insert Into BANCO(Nombre, fecha, cantidad_doc,total, estado) VALUES('" + data.nombre + "', CURRENT_DATE, " + data.cantidad + "," + data.total + ",'" + data.estado + "')";
             console.log(strQuery);
             const result = await database.simpleExecute(strQuery);
+            socket.emit('redirect-page',{url:'/bancos'});
         } catch (err) {
             console.error(err);
         }
     });
-  //Listado de agencias
+
+    //nueva agencia
+    socket.on('crear-agencia',async function(data){
+        try {
+            console.log('Inicializando agregar agencia');
+            await database.initialize(); 
+            //query
+            var insert = "Insert into agencia(direccion, fecha_apertura, banco_cod_lote, nombre) ";
+            var values = "Values( '" + data.direccion +"','" + data.fecha + "'," + data.banco + ",'" + data.nombre  +"' ) ";
+            var strQuery = insert + values;
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('redirect-page',{url:'/agencias'});
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    
+    //Listado de agencias
     socket.on('obtener-agencias',async function(data){
         //Open Conexion
         try {
@@ -202,7 +229,8 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-  //Listado de bancos
+
+    //Listado de bancos
     socket.on('obtener-bancos',async function(data){
         //Open Conexion
         try {
@@ -214,6 +242,40 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
+    //agencia para editar
+    socket.on('get-agencia',async function(data){
+        if(currentEdit==null) return;
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+
+            const select = "select cod_agencia, direccion, to_char(fecha_apertura, 'DD/MM/YYYY') as fecha_apertura, banco_cod_lote, nombre ";
+            const from = "from agencia where cod_agencia = "+ currentEdit
+
+            const result = await database.simpleExecute(select + from);
+            socket.emit('mandar-datos-agencia',result.rows[0]);
+        } catch (err) {
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    //banco para editar
+    socket.on('get-banco',async function(data){
+        if(currentEdit==null) return;
+        try {
+            console.log('Iniciando edicion banco');
+            await database.initialize(); 
+            const select = "select cod_lote,  to_char(fecha, 'DD/MM/YYYY') as fecha, cantidad_doc, total, estado, nombre ";
+            const from = "from banco where cod_lote = " + currentEdit;
+            const result = await database.simpleExecute(select + from);
+            console.log(result.rows[0]);
+            socket.emit('mandar-datos-banco',result.rows[0]);
+        } catch (err) {
+            socket.emit('message-action',{message:err});
+        }
+    });
+
     socket.on('edit-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -230,6 +292,31 @@ io.on('connection', function(socket) {
         }
     });
 
+    //operacion de edicion de banco
+    socket.on('editar-banco',async function(data){
+        console.log('Moviendo datos banco a DB');
+        await database.initialize();
+
+        const update = "Update Banco ";
+        const set = "Set Fecha = '"+ data.fecha +"', CANTIDAD_DOC = "+ data.cantidad +", TOTAL = "+ data.total + ", ESTADO = '"+ data.estado +"', NOMBRE = '"+ data.nombre +"' ";
+        const where = "WHERE COD_LOTE = " + currentEdit;
+        
+        const result = await database.simpleExecute(update + set + where);
+        socket.emit('redirect-page',{url:'/bancos'});
+    });
+
+    //operacion de edicion de agencia
+    socket.on('editar-agencia',async function(data){ 
+        console.log('Moviendo datos banco a DB');
+        await database.initialize();
+
+        const update = "Update Agencia ";
+        const set = "Set Direccion = '"+ data.direccion +"', Fecha_Apertura = '"+ data.fecha +"', NOMBRE = '"+ data.nombre +"', BANCO_COD_LOTE = " + data.banco;
+        const where = " WHERE COD_AGENCIA = " + currentEdit;
+
+        const result = await database.simpleExecute(update + set + where);
+        socket.emit('redirect-page',{url:'/agencias'});
+    });
     socket.on('delete-user',async function(data){
         try {
             console.log('Initializing database module');
@@ -244,6 +331,16 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:err});
             //console.error(err);
         }
+    });
+
+    //borrar banco
+    socket.on('borrar-banco', async function(data){
+
+    });
+
+    //borrar agencia
+    socket.on('borrar-agencia', async function(data){
+
     });
 
     //lista usuarios
@@ -284,7 +381,6 @@ io.on('connection', function(socket) {
         console.log('Encountered error', err);
         }*/
     });
-
     socket.on('edit-account-client',async function(data){
         try {
             await database.initialize(); 
@@ -413,6 +509,7 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
+
     socket.on('crear_chequera',async function(data){
         try {
             console.log(data);

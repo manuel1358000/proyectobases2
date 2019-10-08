@@ -7,9 +7,15 @@ function cargarAgencias(data){
         html+='<td>'+item.FECHA_APERTURA+'</td>'
         html+='<td>'+item.BANCO_COD_LOTE+'</td>'
         html+='<td>'+item.NOMBRE+'</td>'
-        //html+='<td><button type="button"  class="btn btn-warning btn-sm">Editar</button><a> </a><button type="button" class="btn btn-danger btn-sm" onclick="deleteClient(\''+item.USUARIO+'\',\''+item.COD_CLIENTE+'\')">Eliminar</button></td>'
+        html+='<td><button type="button"  class="btn btn-warning btn-sm"  onclick="location.href=\'/agencias/editar/'+item.COD_AGENCIA+'\';" >Editar</button><a> </a><button type="button" class="btn btn-danger btn-sm" onclick="borrarAgencia(\''+item.NOMBRE+'\',\''+item.COD_AGENCIA+'\')">Eliminar</button></td>'
         
         html+='</tr>'
     });
     document.getElementById('tablaAgencia').innerHTML=html;
-}   
+}
+
+function borrarAgencia(nombre,cod_agencia){
+    if (confirm("Confirma la ELIMINACION de la agencia: ["+nombre+"]")) {
+        socket.emit('borrar-agencia',{'cod_agenciax':cod_agencia});
+    }
+}
