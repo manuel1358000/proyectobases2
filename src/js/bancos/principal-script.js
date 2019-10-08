@@ -8,8 +8,7 @@ function cargarBancos(data){
         html+='<td>'+item.TOTAL+'</td>'
         html+='<td>'+item.ESTADO+'</td>'
         html+='<td>'+item.NOMBRE+'</td>'
-        //html+='<td><button type="button"  class="btn btn-warning btn-sm">Editar</button><a> </a><button type="button" class="btn btn-danger btn-sm" onclick="deleteClient(\''+item.USUARIO+'\',\''+item.COD_CLIENTE+'\')">Eliminar</button></td>'
-        
+        html+='<td><button type="button"  class="btn btn-warning btn-sm" onclick="location.href=\'/bancos/editar/'+item.COD_LOTE+'\';" > Editar</button> <a> </a><button type="button" class="btn btn-danger btn-sm" onclick="eliminarBanco(\''+item.COD_LOTE+'\')">Eliminar</button></td>'
         html+='</tr>'
     });
     document.getElementById('tablaBancos').innerHTML=html;
