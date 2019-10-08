@@ -310,6 +310,16 @@ io.on('connection', function(socket) {
         }
     });
 
+    //borrar banco
+    socket.on('borrar-banco', async function(data){
+
+    });
+
+    //borrar agencia
+    socket.on('borrar-agencia', async function(data){
+
+    });
+
     //lista usuarios
     socket.on('get-all-users',async function(data){
         //Open Conexion
