@@ -1,6 +1,6 @@
 //-----------------------------CREATE
 function emitCreationUser(){
-    const dataUser = validationFormNewUser();
+    const dataUser = validationFormNewUser(1);
     if(dataUser!=null){
         var elementDiv=document.getElementById('_inputRepetirPassword');
         if(elementDiv.value!=dataUser.password){
@@ -15,7 +15,7 @@ function emitCreationUser(){
     }
 }
 
-function validationFormNewUser(){
+function validationFormNewUser(num){
     let arrayKey = ['Nombres','Apellidos','Fecha_Nac','DPI','Direccion','Usuario','Password'];
     var dataUser = {};
     var someNull=false;
@@ -23,7 +23,7 @@ function validationFormNewUser(){
         key=>{
             var elementDiv=document.getElementById('_input'+key);
             if(elementDiv.value){
-                dataUser[key.toLowerCase()]= elementDiv.value;
+                dataUser[num==2?key.toLowerCase()+"x":key.toLowerCase()]= elementDiv.value;
             }else{
                 someNull=true;
             }
@@ -37,7 +37,7 @@ function loadFormEdit(){
     socket.emit('get-user',null);
 }
 function emitEditUser(){
-    const dataUser = validationFormNewUser();
+    const dataUser = validationFormNewUser(2);
     if(dataUser!=null){
         console.log(dataUser);
         socket.emit('edit-user', dataUser);

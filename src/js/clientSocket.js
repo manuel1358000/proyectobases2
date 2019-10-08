@@ -18,3 +18,12 @@ socket.on('message-action',function(data){
 socket.on('redirect-page',function(data){
   window.location.href = data.url;
 });
+
+socket.on('send_receive-all-accounts-user',function(data){
+  loadAccountsClient(data);
+});
+
+socket.on('send_receive-account-client',function(data){
+  loadAccountClient(data);
+});
+
