@@ -99,6 +99,9 @@ app.get('/usuario/:uid',function(req,res){
 });
 /**FIN - USUARIOS */
 
+
+
+
 /**INICIO ROL */
 app.get('/roles', function (req, res) {
 	res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
@@ -111,6 +114,7 @@ app.get('/rol/:uid',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
 });
 /**FIN ROL */
+
 
 /**INICIO CHEQUES */
 app.get('/solicitar_chequera', function (req, res) {
