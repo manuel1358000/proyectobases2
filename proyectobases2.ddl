@@ -184,6 +184,11 @@ ALTER TABLE transaccion
     ADD CONSTRAINT usuariov2 FOREIGN KEY ( usuario_cod_usuario )
         REFERENCES usuario ( cod_usuario );
 
+
+
+
+
+
 CREATE SEQUENCE agencia_cod_agencia_seq START WITH 1 NOCACHE ORDER;
 
 CREATE OR REPLACE TRIGGER agencia_cod_agencia_trg BEFORE

@@ -325,7 +325,6 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-    
     //Listado de agencias
     socket.on('obtener-agencias',async function(data){
         //Open Conexion
