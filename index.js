@@ -22,7 +22,7 @@ app.get('/', function (req, res) {
 
 /*Bancos */
 app.get('/bancos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/bancos/Principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/bancos/lista_bancos.html')); //listado
 });
 app.get('/bancos/nuevo', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
@@ -35,7 +35,7 @@ app.get('/bancos/editar/:uid',function(req,res){
 
 /*Agencias*/
 app.get('/agencias', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/agencias/principal.html')); //listado
+    res.sendFile(path.join(__dirname+'/src/template/agencias/lista_agencias.html')); //listado
 });
 app.get('/agencias/nuevo', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
