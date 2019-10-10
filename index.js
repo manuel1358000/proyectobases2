@@ -17,7 +17,6 @@ var currentEdit ={};
 app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
-    currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
@@ -71,13 +70,35 @@ app.get('/administracion', function (req, res) {
 app.get('/usuarios', function (req, res) {
 	res.sendFile(path.join(__dirname+'/src/template/usuarios/usuarios.html'));
 });
+app.get('/roles', function (req, res) {
+	res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
+});
+app.get('/crear_rol', function (req, res) {
+	res.sendFile(path.join(__dirname+'/src/template/roles/crear_rol.html'));
+});
 app.get('/crearusuario', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
+});
+app.get('/usuario/:uid',function(req,res){ 
+    currentEdit['usuario-id']=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/usuarios/modificar_usuario.html'));
+});
+app.get('/rol/:uid',function(req,res){ 
+    currentEdit['rol-id']=req.params.uid;
+    res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
 });
 
 app.get('/solicitar_chequera', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
 });
+app.get('/cancelacion_cheque', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/cheques/cancelacion_cheque.html'));
+});
+
+app.get('/consulta_saldos', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+});
+
 app.get('/clients/:uid/accounts',function(req,res){
     currentEdit['client-id']=req.params.uid;
     console.log(currentEdit);
@@ -115,7 +136,15 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-
+    socket.on('eliminar_rol',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from ROL where COD_ROL='+data);
+            io.sockets.emit('rol_eliminado',result);
+        } catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('bancos',async function(data){
         try {
             await database.initialize(); 
@@ -152,11 +181,47 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-
+    socket.on('obtenerusuario',async function(data){
+        if(currentEdit['usuario-id']==null)return;
+        try {
+            await database.initialize();
+            const result=await database.simpleExecute('select COD_USUARIO,DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA from usuario where cod_usuario='+currentEdit['usuario-id']);
+            socket.emit('infousuario',result.rows[0]);
+        } catch (err) {
+            socket.emit('infousuario',null);
+            //socket.emit('message-action',{message:err});
+        }
+    });
+    socket.on('updateusuario',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize();
+            var ts = new Date(data['fecha_nacimiento']);
+            var fecha_nac=ts.getFullYear()+'-'+("0" + (ts.getMonth() + 1)).slice(-2)+'-'+("0" + (ts.getDay() + 1)).slice(-2);
+            var fecha_contra=data['fecha_contratacion'];
+            var ts2 = new Date(data['fecha_contratacion']);
+            var fecha_contra=ts2.getFullYear()+'-'+("0"+(ts2.getMonth() + 1)).slice(-2)+'-'+("0" + (ts2.getDay() + 1)).slice(-2); 
+            var strQuery ="update usuario set dpi="+data['dpi']+",nombres='"+data['nombres']+"',apellidos='"+data['apellidos']+"',direccion='"+data['direccion']+"',fecha_nacimiento=TO_DATE('"+fecha_nac+"','YYYY-MM-DD'),fecha_contratacion=TO_DATE('"+fecha_contra+"','YYYY-MM-DD'),rol_cod_rol="+data['rol']+",agencia_cod_agencia="+data['agencia']+",ventanilla="+data['ventanilla']+" where cod_usuario="+data['codigo'];
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('usuarioupdate','Usuario Modificado Con Exito');
+        } catch (err) {
+            console.log(err);
+            socket.emit('usuarioupdate',null);
+        }
+    });
+    socket.on('solicitar_roles',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('select * from ROL');
+            io.sockets.emit('lista_roles',result.rows);
+        } catch (err) {
+            console.error(err);
+        }
+    });
     socket.on('mostraragencias',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select COD_AGENCIA,DIRECCION from AGENCIA');
+            const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA');
             io.sockets.emit('listamostraragencias',result.rows);
         } catch (err) {
             console.error(err);
@@ -172,7 +237,29 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-
+    socket.on('updaterol',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            var strQuery ="update rol set nombre='"+data['nombre']+"',descripcion="+data['descripcion']+",rango="+data['rango']+" where cod_rol="+data['codigo'];
+            const result = await database.simpleExecute(strQuery);
+            socket.emit('rolupdate',{message:'Rol EDITADO con EXITO'});
+        } catch (err) {
+            console.log(err);
+            socket.emit('rolupdate',null);
+        }
+    });
+    socket.on('obtenerrol',async function(data){
+        if(currentEdit['rol-id']==null)return;
+        try {
+            await database.initialize();
+            const result=await database.simpleExecute('select cod_rol,nombre,descripcion,rango from rol where cod_rol='+currentEdit['rol-id']);
+            socket.emit('inforol',result.rows[0]);
+        } catch (err) {
+            socket.emit('inforol',null);
+            //socket.emit('message-action',{message:err});
+        }
+    });
     socket.on('get-user',async function(data){
         if(currentEdit['client-id']==null) return;
         try {
@@ -208,7 +295,7 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             //query
             var insert = "Insert into agencia(direccion, fecha_apertura, banco_cod_lote, nombre) ";
-            var values = "Values( '" + data.direccion +"','" + data.fecha + "'," + data.banco + ",'" + data.nombre  +"' ) ";
+            var values = "Values( '" + data.direccion +"',TO_DATE('" + data.fecha + "','DD-MM-YYYY')," + data.banco + ",'" + data.nombre  +"' ) ";
             var strQuery = insert + values;
             const result = await database.simpleExecute(strQuery);
             socket.emit('redirect-page',{url:'/agencias'});
@@ -309,11 +396,9 @@ io.on('connection', function(socket) {
     socket.on('editar-agencia',async function(data){ 
         console.log('Moviendo datos banco a DB');
         await database.initialize();
-
         const update = "Update Agencia ";
-        const set = "Set Direccion = '"+ data.direccion +"', Fecha_Apertura = '"+ data.fecha +"', NOMBRE = '"+ data.nombre +"', BANCO_COD_LOTE = " + data.banco;
+        const set = "Set Direccion = '"+ data.direccion +"', Fecha_Apertura =TO_DATE('"+ data.fecha +"','DD-MM-YYYY'), NOMBRE = '"+ data.nombre +"', BANCO_COD_LOTE = " + data.banco;
         const where = " WHERE COD_AGENCIA = " + currentEdit;
-
         const result = await database.simpleExecute(update + set + where);
         socket.emit('redirect-page',{url:'/agencias'});
     });
@@ -335,12 +420,24 @@ io.on('connection', function(socket) {
 
     //borrar banco
     socket.on('borrar-banco', async function(data){
-
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from BANCO where COD_LOTE='+data['cod_bancox']);
+            console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     //borrar agencia
     socket.on('borrar-agencia', async function(data){
-
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from AGENCIA where COD_AGENCIA='+data['cod_agenciax']);
+            console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     //lista usuarios
@@ -351,7 +448,9 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             const result = await database.simpleExecute('select cod_cliente,nombres, apellidos,usuario,direccion,to_char(fecha_nacimiento, \'DD-MM-YYYY\') as fecha_nacimiento from CLIENTE');
             socket.emit('send_receive-all-users',result.rows);
+            console.log('Ingreso a Clientes');
         } catch (err) {
+            console.log(err);
             socket.emit('message-action',{message:err});
             //console.error(err);
         }
@@ -498,27 +597,79 @@ io.on('connection', function(socket) {
             var mm=d.getMonth()+1;
             var yy=d.getFullYear();
             var contratacion2=yy+"/"+mm+"/"+dd; 
-            var cadena="insert into USUARIO(COD_USUARIO,DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA)values(15,"+
+            var cadena="insert into USUARIO(DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA)values("+
             +data.dpi+",'"+data.nombre+"','"+data.apellido+"','"+data.direccion+"',TO_DATE('"+nacimiento2+"','YYYY-MM-DD'),TO_DATE('"+contratacion2+"','YYYY-MM-DD'),"+data.rol+","+data.agencia+","+data.ventanilla+")";
-            console.log(cadena);
             const result = await database.simpleExecute(cadena);
-            
-            console.log(result);
             io.sockets.emit('usuariocreado','usuariocrearo');
         } catch (err) {
             console.error(err);
         }
     });
-
-    socket.on('crear_chequera',async function(data){
+    socket.on('crearrol',async function(data){
         try {
-            console.log(data);
+            await database.initialize();
+            var cadena="insert into ROL(NOMBRE,DESCRIPCION,RANGO)values('"+data.nombre+"',"+data.descripcion+","+data.rango+")";
+            const result = await database.simpleExecute(cadena);
+            socket.emit('rolcreado',result);
         } catch (err) {
             console.error(err);
         }
     });
+    socket.on('crear_chequera',async function(data){
+        try {
+            await database.initialize();
+            var cadena="insert into ROL(NOMBRE,DESCRIPCION,RANGO)values('"+data.nombre+"',"+data.descripcion+","+data.rango+")";
+            const result = await database.simpleExecute(cadena);
+            socket.emit('rolcreado',result);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    socket.on('numero_cheques',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+data['cuenta']);
+            io.sockets.emit('correlativo',result.rows[0]);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    socket.on('solicitar_chequera',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('insert into chequera(NO_CHEQUES,FECHA_EMISION,ESTADO,CUENTA_COD_CUENTA,ULTIMO_CHEQUE)values('+data['no_cheques']+',TO_DATE(\''+data['fecha_emision']+'\',\'YYYY-MM-DD\'),\''+data['estado']+'\','+data['cuenta_cod_cuenta']+','+data['ultimo_cheque']+')');
+            console.log(result);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    socket.on('rango_chequera',async function(data){
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('select ULTIMO_CHEQUE,NO_CHEQUES from chequera where cod_chequera='+data['chequera']);
+            io.sockets.emit('rango_cheques',result.rows[0]);
+            console.log(result.rows[0]);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    socket.on('cancelar_cheque',async function (data){
+        try{
+            var d=new Date();
+            var dd=d.getDate();
+            var mm=d.getMonth()+1;
+            var yy=d.getFullYear();
+            var fecha=yy+"/"+mm+"/"+dd;
+            await database.initialize(); 
+            var string='insert into cheque(fecha,estado,no_cheque,chequera_cod_chequera)values(TO_DATE(\''+fecha+'\',\'YYYY-MM-DD\'),\''+data['razon']+'\','+data['no_cheque']+','+data['no_chequera']+')';
+            const result = await database.simpleExecute(string);
+            console.log(result);
+        }catch(err) {
+            console.log(err);
+        }
+    });
 });
 
-server.listen(3000,'127.0.0.1', function() {
+server.listen(3000,'0.0.0.0', function() {
 	console.log('Servidor corriendo en http://localhost:3000');
 });

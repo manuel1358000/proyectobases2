@@ -1,5 +1,4 @@
  <div data-include="/common/header.html"></div>
-
  <div class="container">
     <!-- write your html code here-->
     <h3>SOLICITUD DE CHEQUERA</h3>
@@ -8,14 +7,14 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/clientSocket.js"></script>
   <div class="container">
-  	<form>
+    <form>
   		<label for="inputFieldD">NUMERO CUENTA</label>
       <input type="number" class="form-control" id="id_cuenta" required>
-      <label for="inputFieldD">CODIGO USUARIO</label>
-    	<input type="number" class="form-control" id="id_cliente" required>
+      <label for="inputFieldD">NUMERO CHEQUES</label>
+      <input type="number" class="form-control" id="id_numcheques" required>
     	<br>
 		<button onclick="solicitarChequera()" class="btn btn-primary">SOLICITAR CHEQUERA</button>		
-  	</form>
+    </form>
   </div>
   <script src="/js/csi.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
