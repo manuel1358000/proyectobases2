@@ -7,8 +7,8 @@ async function initialize() {
     connectString : "localhost/orcl"*/
     //Manuel
     user          : "system",
-    password      : "bases2",
-    //password      : "Alexandria.2601",
+    //password      : "bases2",
+    password      : "Alexandria.2601",
     connectString : "localhost/XE"
     
   });
