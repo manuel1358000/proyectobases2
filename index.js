@@ -153,7 +153,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('delete from USUARIO where COD_USUARIO='+data);
-            io.sockets.emit('eliminacion',result);
+            socket.emit('eliminacion',result);
         } catch (err) {
             console.error(err);
         }
@@ -162,7 +162,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('delete from ROL where COD_ROL='+data);
-            io.sockets.emit('rol_eliminado',result);
+            socket.emit('rol_eliminado',result);
         } catch (err) {
             console.error(err);
         }
@@ -171,7 +171,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select COD_LOTE,NOMBRE from BANCO');
-            io.sockets.emit('listabancos',result.rows);
+            socket.emit('listabancos',result.rows);
         } catch (err) {
             console.error(err);
         }
@@ -182,7 +182,7 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA where BANCO_COD_LOTE='+data);
             console.log(result);
-            io.sockets.emit('listaagencias',result.rows);
+            socket.emit('listaagencias',result.rows);
         } catch (err) {
             console.error(err);
         }
@@ -193,10 +193,10 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             if(data!=null){
                 const result = await database.simpleExecute('select * from USUARIO where AGENCIA_COD_AGENCIA='+data);
-                io.sockets.emit('listausuarios',result.rows);
+                socket.emit('listausuarios',result.rows);
             }else{
                 const result = await database.simpleExecute('select * from USUARIO');
-                io.sockets.emit('listausuarios',result.rows);
+                socket.emit('listausuarios',result.rows);
             }
             
         } catch (err) {
@@ -235,7 +235,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select * from ROL');
-            io.sockets.emit('lista_roles',result.rows);
+            socket.emit('lista_roles',result.rows);
         } catch (err) {
             console.error(err);
         }
@@ -244,7 +244,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select COD_AGENCIA,NOMBRE from AGENCIA');
-            io.sockets.emit('listamostraragencias',result.rows);
+            socket.emit('listamostraragencias',result.rows);
         } catch (err) {
             console.error(err);
         }
@@ -254,7 +254,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select COD_ROL,NOMBRE from ROL');
-            io.sockets.emit('listamostrarrol',result.rows);
+            socket.emit('listamostrarrol',result.rows);
         } catch (err) {
             console.error(err);
         }
@@ -446,6 +446,7 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             const result = await database.simpleExecute('delete from BANCO where COD_LOTE='+data['cod_bancox']);
             console.log(result);
+            socket.emit('message-action',{message:'Se elimino correctamente el banco'});
         } catch (err) {
             console.error(err);
         }
@@ -457,6 +458,7 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             const result = await database.simpleExecute('delete from AGENCIA where COD_AGENCIA='+data['cod_agenciax']);
             console.log(result);
+            socket.emit('message-action',{message:'Se elimino correctamente la agencia'});
         } catch (err) {
             console.error(err);
         }
@@ -622,7 +624,7 @@ io.on('connection', function(socket) {
             var cadena="insert into USUARIO(DPI,NOMBRES,APELLIDOS,DIRECCION,FECHA_NACIMIENTO,FECHA_CONTRATACION,ROL_COD_ROL,AGENCIA_COD_AGENCIA,VENTANILLA)values("+
             +data.dpi+",'"+data.nombre+"','"+data.apellido+"','"+data.direccion+"',TO_DATE('"+nacimiento2+"','YYYY-MM-DD'),TO_DATE('"+contratacion2+"','YYYY-MM-DD'),"+data.rol+","+data.agencia+","+data.ventanilla+")";
             const result = await database.simpleExecute(cadena);
-            io.sockets.emit('usuariocreado','usuariocrearo');
+            socket.emit('usuariocreado','usuariocrearo');
         } catch (err) {
             console.error(err);
         }
@@ -651,7 +653,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+data['cuenta']);
-            io.sockets.emit('correlativo',result.rows[0]);
+            socket.emit('correlativo',result.rows[0]);
         } catch (err) {
             console.error(err);
         }
@@ -669,7 +671,7 @@ io.on('connection', function(socket) {
         try {
             await database.initialize(); 
             const result = await database.simpleExecute('select ULTIMO_CHEQUE,NO_CHEQUES from chequera where cod_chequera='+data['chequera']);
-            io.sockets.emit('rango_cheques',result.rows[0]);
+            socket.emit('rango_cheques',result.rows[0]);
             console.log(result.rows[0]);
         } catch (err) {
             console.log(err);
