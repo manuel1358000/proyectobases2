@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost:3000', { 'forceNew': true });
+var socket = io.connect('192.168.43.202:3000', { 'forceNew': true });
 
 //mensajes de error
 socket.on('messages', function(data) {

@@ -17,7 +17,6 @@ var currentEdit ={};
 app.use(express.static('src')); //Serves resources from public folder
 
 app.get('/', function (req, res) {
-    currentEdit=null;
     res.sendFile(path.join(__dirname+'/src/template/index.html'));
 });
 
@@ -296,7 +295,7 @@ io.on('connection', function(socket) {
             await database.initialize(); 
             //query
             var insert = "Insert into agencia(direccion, fecha_apertura, banco_cod_lote, nombre) ";
-            var values = "Values( '" + data.direccion +"','" + data.fecha + "'," + data.banco + ",'" + data.nombre  +"' ) ";
+            var values = "Values( '" + data.direccion +"',TO_DATE('" + data.fecha + "','DD-MM-YYYY')," + data.banco + ",'" + data.nombre  +"' ) ";
             var strQuery = insert + values;
             const result = await database.simpleExecute(strQuery);
             socket.emit('redirect-page',{url:'/agencias'});
@@ -397,11 +396,9 @@ io.on('connection', function(socket) {
     socket.on('editar-agencia',async function(data){ 
         console.log('Moviendo datos banco a DB');
         await database.initialize();
-
         const update = "Update Agencia ";
-        const set = "Set Direccion = '"+ data.direccion +"', Fecha_Apertura = '"+ data.fecha +"', NOMBRE = '"+ data.nombre +"', BANCO_COD_LOTE = " + data.banco;
+        const set = "Set Direccion = '"+ data.direccion +"', Fecha_Apertura =TO_DATE('"+ data.fecha +"','DD-MM-YYYY'), NOMBRE = '"+ data.nombre +"', BANCO_COD_LOTE = " + data.banco;
         const where = " WHERE COD_AGENCIA = " + currentEdit;
-
         const result = await database.simpleExecute(update + set + where);
         socket.emit('redirect-page',{url:'/agencias'});
     });
@@ -423,12 +420,24 @@ io.on('connection', function(socket) {
 
     //borrar banco
     socket.on('borrar-banco', async function(data){
-
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from BANCO where COD_LOTE='+data['cod_bancox']);
+            console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     //borrar agencia
     socket.on('borrar-agencia', async function(data){
-
+        try {
+            await database.initialize(); 
+            const result = await database.simpleExecute('delete from AGENCIA where COD_AGENCIA='+data['cod_agenciax']);
+            console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     //lista usuarios
@@ -661,6 +670,6 @@ io.on('connection', function(socket) {
     });
 });
 
-server.listen(3000,'127.0.0.1', function() {
+server.listen(3000,'0.0.0.0', function() {
 	console.log('Servidor corriendo en http://localhost:3000');
 });
