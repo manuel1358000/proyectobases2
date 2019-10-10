@@ -1,5 +1,6 @@
 function solicitarChequera(){
-	var id_cuenta=document.getElementById('id_cuenta').value;
+	console.log(document.getElementById('modal_SolicitarChequera').data)
+	/*var id_cuenta=idCuenta;
 	var id_numcheque=document.getElementById('id_numcheques').value;
 	var ts = new Date();
     var fecha_emision=ts.getFullYear()+'-'+("0" + (ts.getMonth() + 1)).slice(-2)+'-'+("0" + (ts.getDay() + 1)).slice(-2);       
@@ -22,5 +23,5 @@ function solicitarChequera(){
 			cuenta_cod_cuenta:id_cuenta
 		};
 		socket.emit('solicitar_chequera',valores);
-	});
+	});*/
 }
