@@ -1,17 +1,30 @@
 const express = require("express");
+const session = require('express-session');
+
 const app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 const path = require('path');
 const bodyParser = require('body-parser');
 const database = require('./src/js/oracle-transactions/database.js');
-app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+
 app.use(express.static('src')); //Serves resources from public folder
+
 //variable para edicion de formularios
 var currentEdit ={};
+
+var sess;
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/index.html'));
+    sess=req.session;
+    if(sess.email){
+        return res.redirect('/admin');
+    }
+    return res.redirect('/sign-in');
 });
 
 
@@ -19,15 +32,28 @@ app.get('/', function (req, res) {
 
 /*INICIO - BANCOS */
 app.get('/bancos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/bancos/lista_bancos.html')); //listado
+    if(sess.email) {
+        res.sendFile(path.join(__dirname+'/src/template/bancos/lista_bancos.html')); //listado
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/bancos/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/bancos/creacion.html')); //creacion
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/bancos/editar/:uid',function(req,res){
-    currentEdit=null;
-    currentEdit=req.params.uid;
-    res.sendFile(path.join(__dirname+'/src/template/bancos/editar.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit=null;
+        currentEdit=req.params.uid;
+        res.sendFile(path.join(__dirname+'/src/template/bancos/editar.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /*FIN - BANCOS*/
 
@@ -37,15 +63,29 @@ app.get('/bancos/editar/:uid',function(req,res){
 
 /*INICIO - AGENCIAS*/
 app.get('/agencias', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/agencias/lista_agencias.html')); //listado
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/agencias/lista_agencias.html')); //listado
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/agencias/nuevo', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/agencias/creacion.html')); //creacion
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/agencias/editar/:uid',function(req,res){
-    currentEdit=null;
-    currentEdit=req.params.uid;
-    res.sendFile(path.join(__dirname+'/src/template/agencias/editar.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit=null;
+        currentEdit=req.params.uid;
+        res.sendFile(path.join(__dirname+'/src/template/agencias/editar.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /*FIN - AGENCIAS*/
 
@@ -56,46 +96,87 @@ app.get('/agencias/editar/:uid',function(req,res){
 
 /*INICIO - Clientes*/
 app.get('/clients', function (req, res) {	
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/listClient.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/clients/new', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/newClient.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/newClient.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/clients/:uid',function(req,res){ 
-    currentEdit['client-id']=req.params.uid;
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/editClient.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['client-id']=req.params.uid;
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/editClient.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/clients/:uid/accounts',function(req,res){
-    currentEdit['client-id']=req.params.uid;
-    console.log(currentEdit);
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/listAccount.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['client-id']=req.params.uid;
+        console.log(currentEdit);
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/listAccount.html'));
+    }
+    return res.redirect('/sign-in');
 });
 
 app.get('/clients/:uid/accounts/new', function (req, res) {
-    currentEdit['client-id']=req.params.uid;
-    console.log(currentEdit);
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['client-id']=req.params.uid;
+        console.log(currentEdit);
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/newAccount.html'));
+    }
+    return res.redirect('/sign-in');
 });
 
 app.get('/clients/:uid/accounts/:uidc',function(req,res){
-    currentEdit['client-id']=req.params.uid;
-    currentEdit['account-id']=req.params.uidc;
-    console.log(currentEdit);
-    res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/editAccount.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['client-id']=req.params.uid;
+        currentEdit['account-id']=req.params.uidc;
+        console.log(currentEdit);
+        res.sendFile(path.join(__dirname+'/src/template/clients-template/accounts-template/editAccount.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /**FIN - CLIENTES*/
 
 
 /* INICIO-USUARIOS*/
 app.get('/usuarios', function (req, res) {
-	res.sendFile(path.join(__dirname+'/src/template/usuarios/usuarios.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/usuarios/usuarios.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/crearusuario', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/usuarios/crearusuario.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/usuario/:uid',function(req,res){ 
-    currentEdit['usuario-id']=req.params.uid;
-    res.sendFile(path.join(__dirname+'/src/template/usuarios/modificar_usuario.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['usuario-id']=req.params.uid;
+        res.sendFile(path.join(__dirname+'/src/template/usuarios/modificar_usuario.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /**FIN - USUARIOS */
 
@@ -104,40 +185,74 @@ app.get('/usuario/:uid',function(req,res){
 
 /**INICIO ROL */
 app.get('/roles', function (req, res) {
-	res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/roles/roles.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/crear_rol', function (req, res) {
-	res.sendFile(path.join(__dirname+'/src/template/roles/crear_rol.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/roles/crear_rol.html'));
+    }
+    return res.redirect('/sign-in');
 });
+
 app.get('/rol/:uid',function(req,res){ 
-    currentEdit['rol-id']=req.params.uid;
-    res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
+    sess=req.session;
+    if(sess.email){
+        currentEdit['rol-id']=req.params.uid;
+        res.sendFile(path.join(__dirname+'/src/template/roles/modificar_rol.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /**FIN ROL */
 
 
 /**INICIO CHEQUES */
 app.get('/solicitar_chequera', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/cheques/solicitar_chequera.html'));
+    }
+    return res.redirect('/sign-in');
 });
 app.get('/cancelacion_cheque', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/cheques/cancelacion_cheque.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/cheques/cancelacion_cheque.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /**FIN CHEQUES */
 
 /**INICIO SALDOS */
 app.get('/consulta_saldos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+    sess=req.session;
+    if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+    }
+    return res.redirect('/sign-in');
 });
 /**FIN SALDOS */
 
 
 /*INICIO - LOGIN */
 app.get('/sign-in',function(req,res){
+    sess=req.session;
+    if(sess.email){
+        return res.redirect('/');
+    }
     res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-in-template/sign-in-form.html'));
 });
 
 app.get('/sign-up',function(req,res){
+    sess=req.session;
+    if(sess.email){
+        return res.redirect('/');
+    }
     res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-up-template/sign-up-form.html'));
 });
 /**FIN  - LOGIN */
