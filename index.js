@@ -125,6 +125,18 @@ app.get('/cancelacion_cheque', function (req, res) {
 });
 /**FIN CHEQUES */
 
+
+/**TRANSFERENCIA DE FONDOS - USUARIOS */
+
+app.get('/transferencia_fondos',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/transferencia_fondos/transferencia_fondos.html'));
+});
+
+
+/**FIN  - TRANSFERENCIA DE FONDOS */
+
+
+
 /**INICIO SALDOS */
 app.get('/consulta_saldos', function (req, res) {
     res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
@@ -687,6 +699,20 @@ io.on('connection', function(socket) {
             var string='insert into cheque(fecha,estado,no_cheque,chequera_cod_chequera)values(TO_DATE(\''+fecha+'\',\'YYYY-MM-DD\'),\''+data['razon']+'\','+data['no_cheque']+','+data['no_chequera']+')';
             const result = await database.simpleExecute(string);
             console.log(result);
+        }catch(err) {
+            console.log(err);
+        }
+    });
+    socket.on('realizar_transferencia',async function (data){
+        try{
+            console.log('Cuenta Origen->'+data['cuenta_origen']);
+            console.log('Cuenta Destino->'+data['cuenta_destino']);
+            console.log('Monto->'+data['monto']);
+            await stabase.initialize();
+            var string='select * from rol';
+            const result=await database.simpleExecute(query);
+            console.log(result);
+            socket.emit('message-action',{message:'Transferencia Realizada'});
         }catch(err) {
             console.log(err);
         }
