@@ -1,0 +1,34 @@
+<div data-include="/common/header.html"></div>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>CONSULTAR SALDO</h3>
+</div>
+<div class="container">
+   <label for="inputFieldN">NUMERO CUENTA</label>
+ 	<input type="number" class="form-control" id="id_cuenta" onkeypress="return event.charCode >= 48" min="1" required>
+   <br>
+   <button onclick="consulta_saldo()" class="btn btn-primary">CONSULTAR SALDO</button>
+   <br>
+   <br>
+   <div class="container">
+      <table class="table">
+            <thead>
+              <tr>
+                 <th scope="col">NUMERO CUENTA</th>
+                 <th scope="col">SALDO</th>
+                 <th scope="col">RESERVA</th>
+                 <th scope="col">DISPONIBLE</th>
+              </tr>
+          </thead>
+          <tbody id="tabla_roles">
+          </tbody>
+      </table>
+  </div>
+</div>
+</body>
+<script src="/js/csi.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/clientSocket.js"></script>
+<script src="/js/consulta_saldo/consulta_saldo.js"></script>
+</html>

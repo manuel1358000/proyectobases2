@@ -138,8 +138,8 @@ app.get('/transferencia_fondos',function(req,res){
 
 
 /**INICIO SALDOS */
-app.get('/consulta_saldos', function (req, res) {
-    res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+app.get('/consulta_saldo', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/consulta_saldo/consulta_saldo.html'));
 });
 /**FIN SALDOS */
 
@@ -705,18 +705,30 @@ io.on('connection', function(socket) {
     });
     socket.on('realizar_transferencia',async function (data){
         try{
-            console.log('Cuenta Origen->'+data['cuenta_origen']);
-            console.log('Cuenta Destino->'+data['cuenta_destino']);
-            console.log('Monto->'+data['monto']);
-            await stabase.initialize();
-            var string='select * from rol';
+            await database.initialize();
+            var query='begin transferencia_fondos('+data['usuario']+','+data['agencia']+','+data['cuenta_origen']+','+data['cuenta_destino']+','+data['monto']+'); commit; end;';
             const result=await database.simpleExecute(query);
-            console.log(result);
             socket.emit('message-action',{message:'Transferencia Realizada'});
+            socket.emit('redirect-page',{url:'/transferencia_fondos'});
+            console.log('Se realizo la transaccion');
         }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'No se pudo realizar la transferencia, verificar el log'});
+            socket.emit('redirect-page',{url:'/transferencia_fondos'});
+        }
+    });
+    socket.on('/consulta_saldo',async function(data){
+        try{
+            socket.emit('message-action',{message:'Consulta Realizada'});
+            socket.emit('redirect-page',{url:'/consulta_saldo'});
+        }catch(err){
+            socket.emit('message-action',{message:'No se pudo realizar la consulta de saldo'});
+            socket.emit('redirect-page',{url:'/consulta_saldo'});
             console.log(err);
         }
     });
+
+
 });
 
 server.listen(3000,'0.0.0.0', function() {

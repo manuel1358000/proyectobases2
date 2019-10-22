@@ -5,8 +5,11 @@
    <h3>Transferencia Fondos</h3>
  </div>
  <div class="container">
-    <form>
-    	<label for="inputFieldD">CUENTA ORIGEN</label>
+		<label for="inputFieldD">USUARIO(Empleado del banco)</label>	
+		<input type="number" class="form-control" id="id_usuario" onkeypress="return event.charCode >= 48" min="1" required>
+		<label for="inputFieldD">AGENCIA</label>
+		<input type="number" class="form-control" id="id_agencia" onkeypress="return event.charCode >= 48" min="1" required>
+		<label for="inputFieldD">CUENTA ORIGEN</label>
     	<input type="number" class="form-control" id="id_cuentao" onkeypress="return event.charCode >= 48" min="1" required>
 		<label for="inputFieldN">CUENTA DESTINO</label>
     	<input type="number" class="form-control" id="id_cuentad" onkeypress="return event.charCode >= 48" min="1" required>
@@ -15,7 +18,6 @@
         <br>
         <button onclick="realizarTransferencia()" class="btn btn-primary">REALIZAR TRANSFERENCIA</button>
   		<a class="btn" href="/"> Cancel </a>
-    </form>
 </div>
 </body>
  <script src="/js/csi.min.js"></script>
