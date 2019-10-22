@@ -717,10 +717,19 @@ io.on('connection', function(socket) {
             socket.emit('redirect-page',{url:'/transferencia_fondos'});
         }
     });
-    socket.on('/consulta_saldo',async function(data){
+    socket.on('consulta_saldo',async function(data){
         try{
-            socket.emit('message-action',{message:'Consulta Realizada'});
-            socket.emit('redirect-page',{url:'/consulta_saldo'});
+            await database.initialize();
+            var query='SELECT SALDO,RESERVA,DISPONIBLE from cuenta where cod_cuenta='+data;
+            const result=await database.simpleExecute(query);
+            if(result.rows.length>0){
+                socket.emit('datos_saldo',result.rows);
+                socket.emit('message-action',{message:'Consulta Realizada'});
+            }else{
+                socket.emit('message-action',{message:'No existe la cuenta solicitada'});
+                socket.emit('redirect-page',{url:'/consulta_saldo'});
+                
+            }
         }catch(err){
             socket.emit('message-action',{message:'No se pudo realizar la consulta de saldo'});
             socket.emit('redirect-page',{url:'/consulta_saldo'});
