@@ -20,6 +20,7 @@ WHERE cod_cuenta = cuenta_depositar;
 --Si noo existe
 IF cuenta_existente = 0 THEN    
     dbms_output.put_line ('Cuenta no existente');
+    
 --reviso si la cantidad es positiva
 ELSIF cantidad_depositar < 0 THEN
     dbms_output.put_line ('Deposito menor que 0');
@@ -61,7 +62,14 @@ ELSE
     WHERE cod_cuenta = cuenta_depositar;
 
     --commit 
-    commit;
+    COMMIT;
         
 END IF;
+
+EXCEPTION
+  WHEN OTHERS THEN
+  dbms_output.put_line('Error en la transaccion:'||SQLERRM);
+  dbms_output.put_line('Se deshacen las modificaciones');
+  ROLLBACK;
+
 END deposito_bancario_transac;
