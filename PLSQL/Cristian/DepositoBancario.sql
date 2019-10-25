@@ -27,7 +27,10 @@ ELSIF cantidad_depositar < 0 THEN
 
 ELSE
     --obtener el saldo del la cuenta
-    Select saldo into var_saldo_viejo from cuenta;
+    Select saldo into var_saldo_viejo 
+    from cuenta
+    WHERE cod_cuenta = cuenta_depositar;
+    
     var_saldo_nuevo := var_saldo_viejo + cantidad_depositar;
 
     --llamado a la transaccion

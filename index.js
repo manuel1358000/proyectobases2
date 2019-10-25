@@ -63,6 +63,12 @@ app.get('/clients/:uid',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/clients-template/editClient.html'));
 });
 
+/*Depositos*/
+app.get('/deposito', function (req, res) {
+	
+    res.sendFile(path.join(__dirname+'/src/template/operaciones/deposito.html'));
+});
+
 app.get('/administracion', function (req, res) {
 	//conexion.consulta('select * from help');
     res.sendFile(path.join(__dirname+'/src/template/usuarios/administracion.html'));
@@ -272,6 +278,32 @@ io.on('connection', function(socket) {
             console.log(result.rows[0]);
             socket.emit('mandar-datos-banco',result.rows[0]);
         } catch (err) {
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+    //Deposito
+    socket.on('create-new-deposito',async function(data){
+        try{
+            //iniciando db
+            console.log('Iniciando depoisitar a cuenta');
+            await database.initialize(); 
+
+            //parsear
+            data.numero = parseInt(data.numero);
+            data.monto = parseInt(data.monto);
+
+            //ingresar
+            console.log(data);
+            var codigo_usuario = '1'; //cambiar con datos login
+            var codigo_agencia = '1'; //cambiar con datos login
+            var strQuery ="BEGIN deposito_bancario_transac(:numero,:monto," + codigo_usuario + "," + codigo_agencia + "); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('message-action',{message:'deposito REALIZADO con EXITO'});
+            socket.emit('redirect-page',{url:'/deposito'});
+        }
+        catch (err) {
+            console.log(err);
             socket.emit('message-action',{message:err});
         }
     });

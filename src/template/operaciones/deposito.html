@@ -1,0 +1,26 @@
+<div data-include="/common/header.html"></div>  
+    <div class="container">
+            <h2>Realizar un deposito</h2>
+            <div class="form-row">
+                <div class="form-group col-sm-6">
+                    <label for="inputNumero">Numero de cuenta</label>
+                    <input type="text" class="form-control" id="_inputNumero">
+                </div>
+                <div class="form-group col-sm-6">
+                    <label for="inputMonto">Monto</label>
+                    <input type="text" class="form-control" id="_inputMonto">
+                </div>
+            <div class="form-row">
+                <div class="form-group col-sm-8">
+                    <utton type="button" class="btn btn-success" onclick="emitDepositar()">Depositar</button>
+                </div>
+            </div>
+            
+    </div>
+  <script src="/js/csi.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/clientSocket.js"></script>
+  <script src="/js/operaciones/administrar-deposito.js"></script>
+</body>
+</html>
+
