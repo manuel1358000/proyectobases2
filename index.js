@@ -279,10 +279,10 @@ app.get('/transferencia_fondos',function(req,res){
 
 
 /**INICIO SALDOS */
-app.get('/consulta_saldos', function (req, res) {
+app.get('/consulta_saldo', function (req, res) {
     sess=req.session;
     if(sess.email){
-        res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+        res.sendFile(path.join(__dirname+'/src/template/consulta_saldo/consulta_saldo.html'));
     }else{
         return res.redirect('/sign-in');
     }
