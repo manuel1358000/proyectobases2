@@ -1,0 +1,19 @@
+<div data-include="/common/header.html"></div>
+
+<link rel="stylesheet" src="template/file-upload/file-upload.css">
+    <center>
+            <h3 class="text-info">Carga Masiva de Cheques</h3>
+            <form ref='uploadForm' 
+                id='uploadForm' 
+                action='http://localhost:3000/upload' 
+                method='post' 
+                encType="multipart/form-data">
+                <div class="upload-btn-wrapper">
+                    <input type="file"  name="log">
+                    <input class="btn" type='submit' value='Upload!' />
+                </div>
+            </form>
+    </center>
+    <script src="/js/csi.min.js"></script>
+  </body>
+</html> 

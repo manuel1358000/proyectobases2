@@ -1,5 +1,7 @@
 const express = require("express");
 const session = require('express-session');
+const fileUpload = require('express-fileupload');
+
 
 const app = express();
 var server = require('http').Server(app);
@@ -18,7 +20,35 @@ app.use(express.static('src')); //Serves resources from public folder
 //variable para edicion de formularios
 var currentEdit ={};
 
+
 var sess;
+// default options
+app.use(fileUpload());
+
+app.get('/form-upload', function (req, res) {
+    //sess=req.session;
+    res.sendFile(path.join(__dirname+'/src/template/file-upload/file-upload.html')); //listado
+    /*if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/file-upload/file-upload.html')); //listado
+    }else{
+        return res.redirect('/sign-in');
+    }*/
+});
+
+app.post('/upload', function(req, res) {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let sampleFile = req.files.log;
+  
+    // Use the mv() method to place the file somewhere on your server
+    sampleFile.mv(__dirname+'/src/assets/'+req.files.log.name, function(err) {
+      if (err)
+        return res.status(500).send(err);      
+      res.send('Cargado Exitosamente');
+    });
+});
 
 app.get('/', function (req, res) {
     sess=req.session;
