@@ -35,6 +35,10 @@ app.get('/form-upload', function (req, res) {
     }*/
 });
 
+app.get('/status-bulk-load',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load/status-bulk-load.html'));
+});
+
 app.post('/upload', function(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No files were uploaded.');
