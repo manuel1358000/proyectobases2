@@ -266,6 +266,18 @@ app.get('/cancelacion_cheque', function (req, res) {
 });
 /**FIN CHEQUES */
 
+
+/**TRANSFERENCIA DE FONDOS - USUARIOS */
+
+app.get('/transferencia_fondos',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/transferencia_fondos/transferencia_fondos.html'));
+});
+
+
+/**FIN  - TRANSFERENCIA DE FONDOS */
+
+
+
 /**INICIO SALDOS */
 app.get('/consulta_saldos', function (req, res) {
     sess=req.session;
@@ -479,7 +491,6 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-    
     //Listado de agencias
     socket.on('obtener-agencias',async function(data){
         //Open Conexion
@@ -846,7 +857,39 @@ io.on('connection', function(socket) {
             console.log(err);
         }
     });
-
+    socket.on('realizar_transferencia',async function (data){
+        try{
+            await database.initialize();
+            var query='begin transferencia_fondos('+data['usuario']+','+data['agencia']+','+data['cuenta_origen']+','+data['cuenta_destino']+','+data['monto']+'); commit; end;';
+            const result=await database.simpleExecute(query);
+            socket.emit('message-action',{message:'Transferencia Realizada'});
+            socket.emit('redirect-page',{url:'/transferencia_fondos'});
+            console.log('Se realizo la transaccion');
+        }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'No se pudo realizar la transferencia, verificar el log'});
+            socket.emit('redirect-page',{url:'/transferencia_fondos'});
+        }
+    });
+    socket.on('consulta_saldo',async function(data){
+        try{
+            await database.initialize();
+            var query='SELECT SALDO,RESERVA,DISPONIBLE from cuenta where cod_cuenta='+data;
+            const result=await database.simpleExecute(query);
+            if(result.rows.length>0){
+                socket.emit('datos_saldo',result.rows);
+                socket.emit('message-action',{message:'Consulta Realizada'});
+            }else{
+                socket.emit('message-action',{message:'No existe la cuenta solicitada'});
+                socket.emit('redirect-page',{url:'/consulta_saldo'});
+                
+            }
+        }catch(err){
+            socket.emit('message-action',{message:'No se pudo realizar la consulta de saldo'});
+            socket.emit('redirect-page',{url:'/consulta_saldo'});
+            console.log(err);
+        }
+    });
     socket.on('sign-in-event',function(data){
         try {
             console.log(data);

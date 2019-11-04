@@ -7,7 +7,6 @@ function crearRol(){
 		descripcion:id_descripcion,
 		rango:id_rango,
     };
-    console.log('paso aqui');
 	socket.emit('crearrol',data);
 	socket.on('rolcreado', function(data) {
 		alert('Rol Creado con Exito->'+data);	

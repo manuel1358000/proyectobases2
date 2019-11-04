@@ -48,10 +48,6 @@ function solicitarChequera(idCuenta){
 		if(data['CORRELATIVO']!=null){
 			ultimo_cheque+=parseInt(data['CORRELATIVO'])
 		}
-		console.log('Numero Cheques->'+id_numcheque);
-		console.log('Fecha_Emision->'+fecha_emision);
-		console.log('Estado->'+estado);
-		console.log('Ultimo Cheque->'+ultimo_cheque);
 		var valores={
 			no_cheques:id_numcheque,
 			fecha_emision:fecha_emision,
@@ -60,5 +56,5 @@ function solicitarChequera(idCuenta){
 			cuenta_cod_cuenta:id_cuenta
 		};
 		socket.emit('solicitar_chequera',valores);
-	});
+    });
 }

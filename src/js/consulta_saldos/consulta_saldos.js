@@ -1,3 +1,0 @@
-function consultar_saltos(){
-    
-}
