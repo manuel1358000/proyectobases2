@@ -301,6 +301,30 @@ END;
 
 
 
+CREATE TABLE cheque_temporal (
+    cheque          INTEGER NOT NULL,
+    fecha           DATE,
+    cuenta          INTEGER,
+    valor           FLOAT(4),
+    lote_cod_lote   INTEGER NOT NULL
+);
+
+ALTER TABLE cheque_temporal ADD CONSTRAINT cheque_temporal_pk PRIMARY KEY ( cheque );
+
+CREATE TABLE lote_temporal (
+    lote     INTEGER NOT NULL,
+    fecha    DATE,
+    no_doc   INTEGER,
+    valor    FLOAT(4),
+    estado   VARCHAR2(255 BYTE)
+);
+
+ALTER TABLE lote_temporal ADD CONSTRAINT lote_temporal_pk PRIMARY KEY ( lote );
+
+ALTER TABLE cheque_temporal
+    ADD CONSTRAINT lote_cod_lote FOREIGN KEY ( lote_cod_lote )
+        REFERENCES lote_temporal ( lote );
+
 -- Oracle SQL Developer Data Modeler Summary Report: 
 -- 
 -- CREATE TABLE                            11

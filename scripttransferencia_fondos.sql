@@ -6,12 +6,12 @@ CREATE OR REPLACE PROCEDURE transferencia_fondos(
     p_monto number
 )IS
     cursor c_cuenta_origen(p_cuenta_origen number) is
-    select saldo,reserva,disponible
+    select saldo
     from cuenta
     where cod_cuenta=p_cuenta_origen
     for update of saldo;
     cursor c_cuenta_destino(p_cuenta_destino number) is
-    select saldo,reserva,disponible
+    select saldo
     from cuenta
     where cod_cuenta=p_cuenta_destino
     for update of saldo;
@@ -34,6 +34,8 @@ BEGIN
         cuenta_cod_cuenta) values(TO_DATE(sysdate,'YYYY-MM-DD'),'TRANSFERENCIA','DEPOSITO',
         (c_destino.saldo-p_monto),p_monto,c_destino.saldo,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
     end loop;
+    UPDATE CUENTA SET DISPONIBLE=RESERVA + SALDO where cod_cuenta = p_cuenta_origen;
+    UPDATE CUENTA SET DISPONIBLE=RESERVA + SALDO  where cod_cuenta = p_cuenta_destino;
     exception
         when others then 
         v_error := SQLERRM;
@@ -74,7 +76,7 @@ update cuenta set saldo=2000 where cod_cuenta=2;
 delete from transaccion where 1=1;
 
 /*ejecutar procedimiento almacenados*/
-exec transferencia_fondos(1,1,1,2,2000);
+exec transferencia_fondos(1,1,1,2,200);
 begin transferencia_fondos(1,1,1,2,200); commit; end;
 /*seleccionar valores*/
 select * from cuenta;
@@ -92,4 +94,4 @@ select saldo,reserva,disponible from cuenta where cod_cuenta=1;
 
 select * from cuenta where cod_cuenta=1;
 
-
+select saldo,reserva,disponible from cuenta where cod_cuenta=1;
