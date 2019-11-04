@@ -1,3 +1,21 @@
+CREATE OR REPLACE PROCEDURE cargar_cheques(
+    banco number,
+    numero_cheque number,
+    monto float,
+    cuenta_destino number,
+    fecha_cheque date,
+    p_usuario number,
+    p_agencia number
+)IS BEGIN
+    
+
+END cargar_cheques;
+
+
+
+
+
+
 CREATE OR REPLACE PROCEDURE transferencia_fondos(
     p_usuario number,
     p_agencia number,
