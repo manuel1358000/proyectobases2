@@ -39,5 +39,11 @@
     </table>
 </div>
 <script src="/js/csi.min.js"></script>
+<script src="/js/status-bulk-load/status-bulkload-script.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/clientSocket.js"></script>
+<script>
+socket.emit('get-data-from-last-file',null);
+</script>
 </body>
 </html>

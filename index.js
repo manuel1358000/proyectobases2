@@ -2,6 +2,7 @@ const express = require("express");
 const session = require('express-session');
 const fileUpload = require('express-fileupload');
 
+var fs = require('fs');
 
 const app = express();
 var server = require('http').Server(app);
@@ -50,6 +51,7 @@ app.post('/upload', function(req, res) {
     sampleFile.mv(__dirname+'/src/assets/'+req.files.log.name, function(err) {
       if (err)
         return res.status(500).send(err);      
+      currentEdit['last_file']= __dirname+'/src/assets/'+req.files.log.name;
       res.send('Cargado Exitosamente');
     });
 });
@@ -934,7 +936,31 @@ io.on('connection', function(socket) {
         } catch (error) {
         }
     });
+    socket.on('get-data-from-last-file',async function(data){
+       try {
+           
+           if(currentEdit.last_file){
+                const val=await readFile(currentEdit.last_file);
+                console.log(val); 
+           }else{
+               console.log('last_file is empty');
+           }
+       } catch (error) {
+           
+       } 
+    });
 });
+
+function readFile(fileName) {
+    return new Promise((resolve, reject) => {
+      fs.readFile(fileName, 'utf8', function (error, data) {
+        if (error) return reject(error);
+        //console.log(fileName)
+        //console.log(data)
+        resolve(data);
+      })
+    });
+}
 
 server.listen(3000,'0.0.0.0', function() {
 	console.log('Servidor corriendo en http://localhost:3000');
