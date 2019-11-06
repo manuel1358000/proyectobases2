@@ -1,9 +1,3 @@
-    --usuario,agencia,cuentadestino,cuentacheque,bancoactual,bancocheque,numerocheque,fechacheque,montocheque
-begin deposito_cheque(1,1,1,7,1,1,40,to_date('2019-01-01','YYYY-MM-DD'),7000); end;
-
-DROP FUNCTION deposito_cheque;
-
-
 CREATE OR REPLACE PROCEDURE deposito_cheque(
     p_usuario IN number,
     p_agencia IN number,
@@ -48,29 +42,29 @@ validaciones que se tiene que realizar
             number_on_hand:=20010;
             RAISE out_of_stock; 
         ELSE
-            --verificamos la fecha del cheque, para poder ser cambiado
+            
+            --funcion que verifica si un cheque pertenece a una cuenta
             IF VERIFICAR_CHEQUE(p_cuenta_cheque,p_numero_cheque)=1 THEN
+            
             --verificamos si el cheque fue reportado como robado, extraviado o si ya fue pagado
                 IF REPORTE_CHEQUE(p_cuenta_cheque,p_numero_cheque)=1 THEN
                     --VERIFICAR_FONDOS_CUENTA();
-                    for c_origen in c_cuenta_origen(p_cuenta_cheque) loop
+                    for c_origen in c_cuenta_cheque(p_cuenta_cheque) loop
                         if c_origen.saldo>=p_monto_cheque then
                             --CUENTA DESTINO
-                            UPDATE CUENTA SET RESERVA=RESERVA+p_monto_cheque where cod_cuenta=p_cuenta_destino;
+                            UPDATE CUENTA SET DISPONIBLE=DISPONIBLE+p_monto_cheque where cod_cuenta=p_cuenta_destino;
                             --CUENTA ORIGEN
                             UPDATE CUENTA SET DISPONIBLE=DISPONIBLE-p_monto_cheque WHERE COD_CUENTA=p_cuenta_cheque;
-                            for c_origen in c_cuenta_origen(p_cuenta_cheque) loop
-                                INSERT INTO TRANSACCION(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
-                                autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
-                                cuenta_cod_cuenta) values(to_date(sysdate,'YYYY-MM-DD'),'RETIRO','CHEQUE',
-                                (c_origen.saldo+p_monto_cheque),p_monto_cheque,c_origen.saldo,'1',
-                                '','','123456',p_agencia,p_usuario,p_cuenta_cheque);
-                            end loop;
+                            INSERT INTO TRANSACCION(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
+                            autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
+                            cuenta_cod_cuenta) values(to_date(sysdate,'YYYY-MM-DD'),'RETIRO','CHEQUE',
+                            c_origen.saldo,p_monto_cheque,(c_origen.saldo-p_monto_cheque),'1',
+                            '','','123456',p_agencia,p_usuario,p_cuenta_cheque);
                             for c_destino in c_cuenta_destino(p_cuenta_destino) loop
                                 INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
                                 autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
                                 cuenta_cod_cuenta) values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',
-                                (c_destino.saldo-p_monto_cheque),p_monto_cheque,c_destino.saldo,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
+                                c_destino.saldo,p_monto_cheque,(c_destino.saldo+p_monto_cheque),'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
                             end loop;
                             UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_cheque;
                             UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_destino;
@@ -112,52 +106,87 @@ validaciones que se tiene que realizar
     commit;
 END deposito_cheque;
 
-select * from cuenta;
+    --usuario,agencia,cuentadestino,cuentacheque,bancoactual,bancocheque,numerocheque,fechacheque,montocheque
+    --CUENTA 7 A CUENTA2
+exec deposito_cheque(1,1,2,7,2,2,40,to_date('2019-01-01','YYYY-MM-DD'),5000);
+--CUENTA 2 A CUENTA 7
+exec deposito_cheque(1,1,7,2,2,2,10,to_date('2019-01-01','YYYY-MM-DD'),4000);
+--CUENTA 7 A CUENTA 2
+exec deposito_cheque(1,1,2,7,2,2,42,to_date('2019-01-01','YYYY-MM-DD'),2000);
+--CUENTA 2 A CUENTA 7
+exec deposito_cheque(1,1,7,2,2,2,11,to_date('2019-01-01','YYYY-MM-DD'),1000);
+--CUENTA 7 A CUENTA 2
+exec deposito_cheque(1,1,2,7,2,2,44,to_date('2019-01-01','YYYY-MM-DD'),3000);
 
-select * from cheque;
+exec deposito_cheque(1,1,1,7,2,1,40,to_date('2019-01-01','YYYY-MM-DD'),5000);
+exec deposito_cheque(1,1,1,2,7,1,41,to_date('2019-01-01','YYYY-MM-DD'),4000);
+
+
+update cuenta set saldo=2400, disponible=2400, reserva=0 where cod_cuenta=2;
+update cuenta set saldo=7000, disponible=7000, reserva=0 where cod_cuenta=7;
+
+
+
 
 --funcion que permite verificar si un cheque pertenece a una cuenta
 CREATE OR REPLACE FUNCTION VERIFICAR_CHEQUE(
     no_cuenta IN number,
     no_cheque IN number
 )
-RETURN NUMBER IS respuesta NUMBER;
+RETURN NUMBER IS respuesta NUMBER:=1;
+CURSOR C2 IS 
+    SELECT COD_CHEQUERA, NO_CHEQUES, ULTIMO_CHEQUE
+    FROM CHEQUERA
+    WHERE CUENTA_COD_CUENTA=NO_CUENTA;
 BEGIN
-    SELECT CASE
-        WHEN EXISTS(
-            select * from chequera
-            where CUENTA_COD_CUENTA=no_cuenta and ULTIMO_CHEQUE>no_cheque
-        )
-        THEN 1
-        ELSE 0
-    END
-    into respuesta
-    from chequera;
+    FOR VALOR IN C2 LOOP
+        IF VALOR.ULTIMO_CHEQUE>no_cheque then
+            respuesta:=0;   
+        end if;
+    END LOOP;
     return(respuesta);
 END VERIFICAR_CHEQUE;
 execute DBMS_OUTPUT.put_line(VERIFICAR_CHEQUE(7,1));
+
 
 CREATE OR REPLACE FUNCTION REPORTE_CHEQUE(
     no_cuenta IN number,
     no_cheque IN number
 )
 RETURN NUMBER IS respuesta NUMBER;
+CURSOR c1 IS 
+select CHEQUERA_COD_CHEQUERA, NUMERO
+from cheque; 
+valor number:=1;
 BEGIN
-    SELECT CASE
-        WHEN EXISTS(
-            select * from cheque inner join chequera ON cheque.chequera_cod_chequera=chequera.cod_chequera where cheque.numero=no_cheque and chequera.cuenta_cod_cuenta=no_cuenta
-        )
-        THEN 0
-        ELSE 1
-    END
-    into respuesta
-    from chequera;
+    for che in c1 LOOP
+        SELECT CASE
+            WHEN EXISTS(SELECT *
+                        FROM CHEQUERA 
+                        WHERE COD_CHEQUERA=che.CHEQUERA_COD_CHEQUERA 
+                        and ULTIMO_CHEQUE>=no_cheque 
+                        and cuenta_cod_cuenta=no_cuenta)
+            then 0
+            else 1
+            END
+            INTO valor
+            FROM chequera;
+    END LOOP;
+    respuesta:=valor;
     return(respuesta);
 END REPORTE_CHEQUE;
+
+
 execute DBMS_OUTPUT.put_line(REPORTE_CHEQUE(7,1));--retorna 0 si ya esta operado el cheque o 1 sino esta operado
+execute DBMS_OUTPUT.put_line('hola');
+
+select * from chequera;
 
 
-select * from cheque;
+select COUNT(*) from cheque inner join chequera ON cheque.chequera_cod_chequera=chequera.cod_chequera where cheque.numero=1 and chequera.cuenta_cod_cuenta=7
+
+
+select * from chequeRA;
 insert into cheque(NUMERO,FECHA,MONTO,ESTADO,LOTE_COD_LOTE,CHEQUERA_COD_CHEQUERA,FIRMA)VALUES(1,to_date('2019-11-05','YYYY-MM-DD'),0,'CANCELADO',NULL,1,'FIRMA');
 insert into cheque(NUMERO,FECHA,MONTO,ESTADO,LOTE_COD_LOTE,CHEQUERA_COD_CHEQUERA,FIRMA)VALUES(2,to_date('2019-11-05','YYYY-MM-DD'),1000,'PAGADO',NULL,1,'FIRMA');
 
