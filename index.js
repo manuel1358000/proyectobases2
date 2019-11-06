@@ -276,13 +276,24 @@ app.get('/transferencia_fondos',function(req,res){
 
 /**FIN  - TRANSFERENCIA DE FONDOS */
 
-
+app.get('/consulta',async function(req,res){
+    try {
+        await database.initialize(); 
+        const result=await database.simpleExecute("BEGIN DEPOSITO_CHEQUE(1,1,1,7,1,1,40,to_date('2019-01-01','YYYY-MM-DD'),6000); END;");
+        if(result!=null){
+            res.send('Cheque operado con exito');
+        }
+    } catch (err) {
+        console.error(err.errorNum);
+        res.send(err.errorNum.toString());
+    }
+});
 
 /**INICIO SALDOS */
-app.get('/consulta_saldos', function (req, res) {
+app.get('/consulta_saldo', function (req, res) {
     sess=req.session;
     if(sess.email){
-        res.sendFile(path.join(__dirname+'/src/template/consulta_saldos/consulta_saldos.html'));
+        res.sendFile(path.join(__dirname+'/src/template/consulta_saldo/consulta_saldo.html'));
     }else{
         return res.redirect('/sign-in');
     }
