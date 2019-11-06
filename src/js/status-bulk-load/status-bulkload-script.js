@@ -30,9 +30,9 @@ async function loadBulkLoadOwnChecks(dataFile)  {
         }
     });
     document.getElementById("_bodyBulkLoadTable").innerHTML=htmlx;
-    /*$(document).ready( function () {
+    $(document).ready( function () {
         $('#_tableBulkLoad').DataTable();
-    } );*/
+    } );
 }
 
  function insertDatainJSON(item,ii,objN){
