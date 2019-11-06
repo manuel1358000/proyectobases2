@@ -72,6 +72,7 @@ function startBulkLoad(){
         var idName="_spinnerBulkLoad"+(ii+1);
         try {
             document.getElementById(idName).style.display="inline-block";
+            socket.emit('execute-bulk-load',it);
         } catch (error) {
             console.log(error);
         }

@@ -957,10 +957,24 @@ io.on('connection', function(socket) {
             console.log('Initializing database module');
             await database.initialize(); 
             var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
+            data.p_usuario=parseInt(data.p_usuario);
+            data.p_agencia=parseInt(data.p_agencia);
+            data.p_cuenta_destino=parseInt(data.p_cuenta_destino);
+            data.p_cuenta_cheque=parseInt(data.p_cuenta_cheque);
+            data.p_banco_actual=parseInt(data.p_banco_actual);
+            data.p_banco_cheque=parseInt(data.p_banco_cheque);
+            data.p_numero_cheque=parseInt(data.p_numero_cheque);
+            data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
+            data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
+            data.p_monto_cheque=parseFloat(data.p_monto_cheque);
             const result = await database.simpleExecute(strQuery,data);
+            console.log(result);
             socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+            
         } catch (err) {
-            socket.emit('message-action',{message:err});
+            console.log(err);
+            socket.emit('response-bulk-load-item',{message:'Cheque no realizado'});
+            //socket.emit('message-action',{message:err});
         }
     });
     socket.on('get-data-from-last-file',async function(data){
