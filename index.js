@@ -41,6 +41,7 @@ app.get('/status-bulk-load',function(req,res){
 });
 
 app.post('/upload', function(req, res) {
+    
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No files were uploaded.');
     }
@@ -52,7 +53,10 @@ app.post('/upload', function(req, res) {
       if (err)
         return res.status(500).send(err);      
       currentEdit['last_file']= __dirname+'/src/assets/'+req.files.log.name;
-      res.send('Cargado Exitosamente');
+      currentEdit['option_bulkLoad']= req.body.selectOperationBuckLoad;
+      console.log(currentEdit.option_bulkLoad);
+      //res.send('Cargado Exitosamente');
+      res.redirect('/status-bulk-load');
     });
 });
 
@@ -941,7 +945,7 @@ io.on('connection', function(socket) {
            
            if(currentEdit.last_file){
                 const val=await readFile(currentEdit.last_file);
-                console.log(val); 
+                
            }else{
                console.log('last_file is empty');
            }
