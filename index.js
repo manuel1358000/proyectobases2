@@ -577,6 +577,7 @@ io.on('connection', function(socket) {
         }
     });
 
+
     //operacion de edicion de banco
     socket.on('editar-banco',async function(data){
         console.log('Moviendo datos banco a DB');
@@ -909,6 +910,17 @@ io.on('connection', function(socket) {
                 console.log(sess);
             }
         } catch (error) {
+        }
+    });
+    socket.on('execute-bulk-load',async function(data){
+        try {
+            console.log('Initializing database module');
+            await database.initialize(); 
+            var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
+            const result = await database.simpleExecute(strQuery,data);
+            socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+        } catch (err) {
+            socket.emit('message-action',{message:err});
         }
     });
 });

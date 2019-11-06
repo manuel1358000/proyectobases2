@@ -46,3 +46,6 @@ socket.on('enviar-bancos',function(data){
 socket.on('mandar-datos-banco',function(data){
   mostrarBanco(data);
 });
+socket.on('response-bulk-load-item',function(data){
+  console.log(data.message);
+});
