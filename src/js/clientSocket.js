@@ -46,3 +46,8 @@ socket.on('enviar-bancos',function(data){
 socket.on('mandar-datos-banco',function(data){
   mostrarBanco(data);
 });
+
+//obtiene los datos del ultimo archivo cargado (Cheques del Banco  Nuestro)
+socket.on('receive-data-from-last-file',function(data){
+  loadBulkLoadOwnChecks(data);
+});
