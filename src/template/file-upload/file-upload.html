@@ -1,0 +1,35 @@
+<div data-include="/common/header.html"></div>
+
+<link rel="stylesheet" src="template/file-upload/file-upload.css">
+<div class="container">
+
+    <center>
+            
+            <h3 class="text-info">Carga Masiva de Cheques</h3>
+            <form ref='uploadForm' 
+                id='uploadForm' 
+                action='http://localhost:3000/upload',{'datax':'s'} 
+                method='post' 
+                encType="multipart/form-data">
+                <div class="row justify-content-between">
+                        <div class="col-sm-4"></div>
+                        <div class="offset-sm-6 col-sm-4" style="background-color: teal">
+                                <label for="sel1" style="color: white;font-family: 'Courier New', Courier, monospace">SELECCIONA LA OPERACION:</label>
+                                <select class="form-control" name="selectOperationBuckLoad">
+                                    <option>Cheques Propios</option>
+                                    <option>Cheques de Externos</option>
+                                </select>
+                                <br>
+                        </div>
+                </div>    
+            </br>  
+                <div class="upload-btn-wrapper">
+                    <input type="file"  name="log">
+                    <input class="btn" type='submit' value='Upload!' />
+                </div>
+            </form>
+        </div>
+    </center>
+    <script src="/js/csi.min.js"></script>
+  </body>
+</html> 
