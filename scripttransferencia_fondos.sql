@@ -24,7 +24,7 @@ CREATE OR REPLACE PROCEDURE deposito_cheque(
     where cod_cuenta=p_cuenta_destino
     for update of saldo;
     --cursor que trae la informacion de la cuenta origen del cheque si es del mismo banco
-    cursor c_cuenta_origen(p_cuenta_origen number) is
+    cursor c_cuenta_cheque(p_cuenta_cheque number) is
     select saldo, disponible, reserva from cuenta
     where cod_cuenta=p_cuenta_cheque
     for update of saldo;
@@ -55,7 +55,25 @@ validaciones que se tiene que realizar
                     --VERIFICAR_FONDOS_CUENTA();
                     for c_origen in c_cuenta_origen(p_cuenta_cheque) loop
                         if c_origen.saldo>=p_monto_cheque then
-                            DBMS_OUTPUT.put_line('LA CUENTA SI TIENE FONDOS');
+                            --CUENTA DESTINO
+                            UPDATE CUENTA SET RESERVA=RESERVA+p_monto_cheque where cod_cuenta=p_cuenta_destino;
+                            --CUENTA ORIGEN
+                            UPDATE CUENTA SET DISPONIBLE=DISPONIBLE-p_monto_cheque WHERE COD_CUENTA=p_cuenta_cheque;
+                            for c_origen in c_cuenta_origen(p_cuenta_cheque) loop
+                                INSERT INTO TRANSACCION(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
+                                autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
+                                cuenta_cod_cuenta) values(to_date(sysdate,'YYYY-MM-DD'),'RETIRO','CHEQUE',
+                                (c_origen.saldo+p_monto_cheque),p_monto_cheque,c_origen.saldo,'1',
+                                '','','123456',p_agencia,p_usuario,p_cuenta_cheque);
+                            end loop;
+                            for c_destino in c_cuenta_destino(p_cuenta_destino) loop
+                                INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
+                                autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
+                                cuenta_cod_cuenta) values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',
+                                (c_destino.saldo-p_monto_cheque),p_monto_cheque,c_destino.saldo,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
+                            end loop;
+                            UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_cheque;
+                            UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_destino;
                         else
                             DBMS_OUTPUT.put_line('LA CUENTA NO TIENE FONDOS');
                             number_on_hand:=20040;
@@ -198,8 +216,8 @@ CREATE OR REPLACE PROCEDURE transferencia_fondos(
     v_error varchar2(32000);
 BEGIN
     SAVEPOINT SALDO_INICIAL;
-    UPDATE CUENTA SET SALDO = SALDO - p_monto where cod_cuenta = p_cuenta_origen;
-    UPDATE CUENTA SET SALDO = SALDO + p_monto where cod_cuenta = p_cuenta_destino;
+    UPDATE CUENTA SET DISPONIBLE= DISPONIBLE - p_monto where cod_cuenta = p_cuenta_origen;
+    UPDATE CUENTA SET DISPONIBLE = DISPONIBLE + p_monto where cod_cuenta = p_cuenta_destino;
     for c_origen in c_cuenta_origen(p_cuenta_origen) loop
         INSERT INTO TRANSACCION(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
         autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
@@ -213,8 +231,8 @@ BEGIN
         cuenta_cod_cuenta) values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','TRANSFERENCIA',
         (c_destino.saldo-p_monto),p_monto,c_destino.saldo,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
     end loop;
-    UPDATE CUENTA SET DISPONIBLE=RESERVA + SALDO where cod_cuenta = p_cuenta_origen;
-    UPDATE CUENTA SET DISPONIBLE=RESERVA + SALDO  where cod_cuenta = p_cuenta_destino;
+    UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_origen;
+    UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE  where cod_cuenta = p_cuenta_destino;
     exception
         when others then 
         v_error := SQLERRM;
