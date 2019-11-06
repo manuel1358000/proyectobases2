@@ -276,7 +276,21 @@ app.get('/transferencia_fondos',function(req,res){
 
 /**FIN  - TRANSFERENCIA DE FONDOS */
 
-
+app.get('/consulta',async function(req,res){
+    try {
+        await database.initialize(); 
+        const result=await database.simpleExecute("BEGIN DEPOSITO_CHEQUE(1,1,1,7,1,1,40,to_date('2019-01-01','YYYY-MM-DD'),6000); END;");
+        res.send(result.rows);
+        if(JSON.stringify(result.rows)==''){
+            console.log('asd');
+        }
+        console.log('result');
+        console.log(result);
+    } catch (err) {
+        console.error(err.errorNum);
+        res.send(err.errorNum.toString());
+    }
+});
 
 /**INICIO SALDOS */
 app.get('/consulta_saldo', function (req, res) {
