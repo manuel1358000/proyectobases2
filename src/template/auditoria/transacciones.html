@@ -1,0 +1,48 @@
+<div data-include="/common/header.html"></div>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>Listado Usuarios Sistema Bancos</h3>
+ </div>
+ 
+   <div class="container">
+       <div class="form-row">
+           <div class="form-group col-sm-4">
+               <label for="inputbanco">Banco</label>
+               <select id="inputbanco" class="form-control">
+               </select>
+           </div>
+           <button type="submit" onclick="agregarTransacciones()" class="btn btn-primary">Filtrar</button>
+       </div>
+   </div>
+
+   <div class="container">
+       <table class="table">
+             <thead>
+               <tr>
+                     <th scope="col">Codigo Transaccion</th>
+                     <th scope="col">Fecha</th>
+                     <th scope="col">Tipo</th>
+                     <th scope="col">Naturaleza</th>
+                     <th scope="col">Saldo Inicial</th>
+                     <th scope="col">Valor</th>
+                     <th scope="col">Saldo Final</th>
+                     <th scope="col">Autorizacion</th>
+                     <th scope="col">Rechazo</th>
+                     <th scope="col">Razon Rechazo</th>
+                     <th scope="col">Documento</th>
+                     <th scope="col">Agencia</th>
+                     <th scope="col">Usuario</th>
+                     <th scope="col">Cuenta</th>
+               </tr>
+           </thead>
+           <tbody id="tabla_transac">
+           </tbody>
+       </table>
+   </div>
+</body>
+ <script src="/js/csi.min.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/clientSocket.js"></script>
+ <script src="/js/auditoria/cargartransac.js"></script>
+</html>

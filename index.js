@@ -111,6 +111,10 @@ app.get('/sign-up',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/sign-in-sign-up-templates/sign-up-template/sign-up-form.html'));
 });
 
+app.get('/transacciones', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/auditoria/transacciones.html'));
+});
+
 io.on('connection', function(socket) {
     socket.on('eliminarusuario',async function(data){
         try {
@@ -188,6 +192,37 @@ io.on('connection', function(socket) {
             socket.emit('send_receive-user',result.rows[0]);
         } catch (err) {
             socket.emit('message-action',{message:err});
+        }
+    });
+
+    //transacciones
+    socket.on('transacciones',async function(data){
+        try {
+            if(data==null){
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                io.sockets.emit('listatrans',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND a.banco_cod_lote = " + data + " ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                io.sockets.emit('listatrans',result.rows);
+            }
+
+            
+        } catch (err) {
+            console.error(err);
         }
     });
 
