@@ -1,0 +1,28 @@
+<div data-include="/common/header.html"></div>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>Cancelacion Cheque Robado/Extraviado</h3>
+ </div>
+ <div class="container">
+    <form>
+    	<label for="inputFieldD">NUMERO_CHEQUE</label>
+    	<input type="text" class="form-control" id="id_numcheque" required>
+		<label for="inputFieldN">NUMERO_CHEQUERA</label>
+    	<input type="number" class="form-control" id="id_numchequera" required>
+        <label for="inputFieldA">Razon</label>
+    	<select class="form-control" id="id_razon" required>
+            <option>CANCELADO</option>
+            <option>EXTRAVIADO</option>
+		</select>
+        <br>
+        <button onclick="cancelarCheque()" class="btn btn-primary">CANCELAR CHEQUE</button>
+  		<a class="btn" href="/cancelacion_cheque"> Cancel </a>
+    </form>
+    </div>
+</body>
+ <script src="/js/csi.min.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/clientSocket.js"></script>
+ <script src="/js/chequera/cancelacion_cheque.js"></script>
+</html>

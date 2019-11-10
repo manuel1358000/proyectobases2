@@ -2,10 +2,12 @@
 	<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
   	<script src="https://unpkg.com/js-datepicker"></script>
 	<div class="container">
-		<h3>Crear Usuario Sistema Bancos</h3>
+		<h3>Modificar Usuario Sistema Bancos</h3>
 	</div>
 	<div class="container">
-		<form action='/usuarios' method='GET'>
+        <form action='/usuarios' method='GET'>
+                <label for="inputFieldD">CODIGO</label>
+    	        <input type="text" class="form-control" id="id_usuario" disabled='disabled' required>	
     			<label for="inputFieldD">DPI</label>
     			<input type="number" class="form-control" id="id_dpi" min="0" oninput="this.value = Math.abs(this.value)" required>
     			<label for="inputFieldN">NOMBRES</label>
@@ -27,17 +29,16 @@
   				<label for="inputFieldV">VENTANILLA</label>
     			<input type="number" class="form-control" id="id_ventanilla" min="0" oninput="this.value = Math.abs(this.value)" required="">
   			<br>
-			<button onclick="enviarFormulario()" onclick="window.location.href='/usuarios'" class="btn btn-primary">CREAR USUARIO</button>
+			<button onclick="modificarUsuario()" onclick="window.location.href='/usuarios'" class="btn btn-primary">MODIFICAR USUARIO</button>
   			<a class="btn" href="/usuarios"> Cancel </a>
 		</form>
 	</div>
 	<script src="/js/csi.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/clientSocket.js"></script>
-	<script src="/js/usuario-js/crearusuario.js"></script>
+	<script src="/js/usuario-js/modificarusuario.js"></script>
 	<script src="/js/manageDatePicker.js"></script>	
-	<script>loadDatePicker();</script>
-	<script>mostrarAgencias();</script>
-	<script>mostrarRol();</script>
+    <script>loadDatePicker();</script>
+    <script>cargarFormularioUsuario();</script>
 </body>
 </html>
