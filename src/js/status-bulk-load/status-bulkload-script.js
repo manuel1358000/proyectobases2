@@ -11,10 +11,12 @@ async function loadBulkLoadOwnChecks(dataFile)  {
         //return loadBulkLoadExternChecks();
     }
     var htmlx="";
-    content.split('\n').forEach( (line,ii) => {
-        if(_checksExtern && ii==0){
-            return;
-        }
+    var allLines=content.split('\n');
+    if(_checksExtern){
+        allLines.splice(0,1);
+    }
+    allLines.forEach( (line,ii) => {
+        
         if (line.trim()!=""){
             var ds=line.split(separator);
             htmlx+='<tr>';
@@ -46,7 +48,7 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     document.getElementById("_bodyBulkLoadTable").innerHTML=htmlx;
     $(document).ready( function () {
         $('#_tableBulkLoad').DataTable({
-            "scrollY": "300px",
+            "scrollY": $(window).height()/2,
             "scrollCollapse": true,
             "paging": false
         });
