@@ -1,7 +1,11 @@
 var _dataFileJSON = [];
 async function loadBulkLoadOwnChecks(dataFile)  {
+    const {content,option_bulkLoad} = dataFile;
+    if(option_bulkLoad=='Cheques de Externos'){
+        return loadBulkLoadExternChecks(content);
+    }
     var htmlx="";
-     dataFile.content.split('\n').forEach( (line,ii) => {
+     content.split('\n').forEach( (line,ii) => {
         if (line.trim()!=""){
             var ds=line.split(',');
             htmlx+='<tr>';
@@ -36,7 +40,21 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     } );
 }
 
- function insertDatainJSON(item,ii,objN){
+function loadBulkLoadExternChecks(content){
+    //First Line Contain Header File
+    var lines=content.split('\n');
+    var headerFile = lines.splice(0,1);//Header
+    //- VERIFICA QUE LA SUMA TOTAL DE LOS CHEQUES CON EL VALOR DEL ENCABEZADO
+    lines.forEach(el=>{
+
+    });
+    console.log(lines);
+    
+    //- VERIFICA EL NUMERO DE CHEQUES ES EL MISMO AL NUMERO DE DOCUMENTOS DEL ENCABEZADO
+
+}
+
+function insertDatainJSON(item,ii,objN){
     switch(ii){
         case 0:
                 objN['p_usuario']=item;

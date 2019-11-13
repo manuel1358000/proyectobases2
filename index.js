@@ -987,7 +987,7 @@ io.on('connection', function(socket) {
            
            if(currentEdit.last_file){
                 const val=await readFile(currentEdit.last_file);
-                socket.emit('receive-data-from-last-file',{content:val});
+                socket.emit('receive-data-from-last-file',{content:val,option_bulkLoad:currentEdit.option_bulkLoad});
            }else{
                console.log('last_file is empty');
            }
