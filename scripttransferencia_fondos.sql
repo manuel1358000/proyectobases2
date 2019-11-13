@@ -6,7 +6,7 @@ CREATE OR REPLACE PROCEDURE deposito_cheque(
     p_banco_actual IN number,--banco donde se esta haciendo el deposito
     p_banco_cheque IN number,
     p_numero_cheque IN number,
-    p_fecha_cheque IN date,
+    p_fecha_cheque IN VARCHAR2,
     p_monto_cheque IN float
 )IS 
     out_of_stock EXCEPTION;
@@ -16,7 +16,7 @@ CREATE OR REPLACE PROCEDURE deposito_cheque(
     cursor c_cuenta_destino(p_cuenta_destino number) is
     select saldo, disponible, reserva from cuenta
     where cod_cuenta=p_cuenta_destino
-    for update of saldo;
+    for update of disponible;
     --cursor que trae la informacion de la cuenta origen del cheque si es del mismo banco
     cursor c_cuenta_cheque(p_cuenta_cheque number) is
     select saldo, disponible, reserva from cuenta
@@ -37,7 +37,7 @@ validaciones que se tiene que realizar
         - LA CUENTA DEL CHEQUE NO TIENE FONDOS - 20013
     */
     IF p_banco_actual=p_banco_cheque THEN
-        IF p_fecha_cheque>sysdate THEN
+        IF to_date(p_fecha_cheque,'YYYY-MM-DD')>sysdate THEN
             DBMS_OUTPUT.put_line('CHEQUE RECHAZADO POR FECHA INCORRECTA');
             number_on_hand:=20010;
             RAISE out_of_stock; 
@@ -108,7 +108,7 @@ END deposito_cheque;
 
     --usuario,agencia,cuentadestino,cuentacheque,bancoactual,bancocheque,numerocheque,fechacheque,montocheque
     --CUENTA 7 A CUENTA2
-exec deposito_cheque(1,1,2,7,2,2,40,to_date('2019-01-01','YYYY-MM-DD'),5000);
+exec deposito_cheque(1,1,2,7,2,2,40,to_date('2020-01-01','YYYY-MM-DD'),5000);
 --CUENTA 2 A CUENTA 7
 exec deposito_cheque(1,1,7,2,2,2,10,to_date('2019-01-01','YYYY-MM-DD'),4000);
 --CUENTA 7 A CUENTA 2
@@ -123,10 +123,13 @@ exec deposito_cheque(1,1,1,2,7,1,41,to_date('2019-01-01','YYYY-MM-DD'),4000);
 
 
 update cuenta set saldo=2400, disponible=2400, reserva=0 where cod_cuenta=2;
-update cuenta set saldo=7000, disponible=7000, reserva=0 where cod_cuenta=7;
-
-
-
+update cuenta set saldo=70000, disponible=70000, reserva=0 where cod_cuenta=7;
+update cuenta set saldo=600, disponible=600, reserva=0 where cod_cuenta=1;
+commit;
+delete from transaccion where 1=1;
+commit;
+select * from transaccion order by cod_transaccion;
+select * from cuenta;
 
 --funcion que permite verificar si un cheque pertenece a una cuenta
 CREATE OR REPLACE FUNCTION VERIFICAR_CHEQUE(
