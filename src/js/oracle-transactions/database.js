@@ -1,5 +1,6 @@
 const oracledb = require('oracledb');
 async function initialize() {
+  console.log('Conexion Inicializada');
   const pool = await oracledb.createPool({
     //Cristian
     /*user          : "cris",
@@ -25,10 +26,8 @@ function simpleExecute(statement, binds = [], opts = {}) {
     opts.autoCommit = true;
  
     try {
-      conn = await oracledb.getConnection();
- 
+      conn = await oracledb.getConnection(); 
       const result = await conn.execute(statement, binds, opts);
- 
       resolve(result);
     } catch (err) {
       reject(err);

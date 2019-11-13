@@ -10,7 +10,7 @@ var io = require('socket.io')(server);
 const path = require('path');
 const bodyParser = require('body-parser');
 const database = require('./src/js/oracle-transactions/database.js');
-
+database.initialize();
 app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -956,8 +956,6 @@ io.on('connection', function(socket) {
         var index = data.index;
         delete data.index;
         try {
-            console.log('Initializing database module');
-            await database.initialize(); 
             var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             data.p_usuario=parseInt(data.p_usuario);
             data.p_agencia=parseInt(data.p_agencia);
@@ -974,7 +972,6 @@ io.on('connection', function(socket) {
             console.log(result);
             console.log('FinishTransaccion:'+index);
             socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
-            
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);

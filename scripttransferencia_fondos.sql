@@ -15,13 +15,11 @@ CREATE OR REPLACE PROCEDURE deposito_cheque(
     --cursor que trae la informacion de la cuenta a quien se le realiza el deposito del cheque
     cursor c_cuenta_destino(p_cuenta_destino number) is
     select saldo, disponible, reserva from cuenta
-    where cod_cuenta=p_cuenta_destino
-    for update of disponible;
+    where cod_cuenta=p_cuenta_destino;
     --cursor que trae la informacion de la cuenta origen del cheque si es del mismo banco
     cursor c_cuenta_cheque(p_cuenta_cheque number) is
     select saldo, disponible, reserva from cuenta
-    where cod_cuenta=p_cuenta_cheque
-    for update of saldo;
+    where cod_cuenta=p_cuenta_cheque;
 BEGIN
     --proceso para registrar cheque de banco propio
     /*
@@ -64,10 +62,12 @@ validaciones que se tiene que realizar
                                 INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,
                                 autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,
                                 cuenta_cod_cuenta) values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',
-                                c_destino.saldo,p_monto_cheque,(c_destino.saldo+p_monto_cheque),'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
+                                c_destino.saldo,p_monto_cheque,c_destino.saldo+p_monto_cheque,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);
+                            
                             end loop;
                             UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_cheque;
                             UPDATE CUENTA SET SALDO=RESERVA + DISPONIBLE where cod_cuenta = p_cuenta_destino;
+                            
                         else
                             DBMS_OUTPUT.put_line('LA CUENTA NO TIENE FONDOS');
                             number_on_hand:=20040;
@@ -101,25 +101,14 @@ validaciones que se tiene que realizar
             END IF;
         when others then 
         v_error := SQLERRM;
-        raise_application_error(-20000,v_error);
+        raise_application_error(-22222,v_error);
         commit;
     commit;
 END deposito_cheque;
 
     --usuario,agencia,cuentadestino,cuentacheque,bancoactual,bancocheque,numerocheque,fechacheque,montocheque
     --CUENTA 7 A CUENTA2
-exec deposito_cheque(1,1,2,7,2,2,40,to_date('2020-01-01','YYYY-MM-DD'),5000);
---CUENTA 2 A CUENTA 7
-exec deposito_cheque(1,1,7,2,2,2,10,to_date('2019-01-01','YYYY-MM-DD'),4000);
---CUENTA 7 A CUENTA 2
-exec deposito_cheque(1,1,2,7,2,2,42,to_date('2019-01-01','YYYY-MM-DD'),2000);
---CUENTA 2 A CUENTA 7
-exec deposito_cheque(1,1,7,2,2,2,11,to_date('2019-01-01','YYYY-MM-DD'),1000);
---CUENTA 7 A CUENTA 2
-exec deposito_cheque(1,1,2,7,2,2,44,to_date('2019-01-01','YYYY-MM-DD'),3000);
 
-exec deposito_cheque(1,1,1,7,2,1,40,to_date('2019-01-01','YYYY-MM-DD'),5000);
-exec deposito_cheque(1,1,1,2,7,1,41,to_date('2019-01-01','YYYY-MM-DD'),4000);
 
 
 update cuenta set saldo=2400, disponible=2400, reserva=0 where cod_cuenta=2;
@@ -128,6 +117,7 @@ update cuenta set saldo=600, disponible=600, reserva=0 where cod_cuenta=1;
 commit;
 delete from transaccion where 1=1;
 commit;
+
 select * from transaccion order by cod_transaccion;
 select * from cuenta;
 
@@ -197,6 +187,16 @@ select * from cheque where COD_CHEQUE=30 and CUENTAv1=1 and (estado='CANCELADO' 
 SELECT * FROM CHEQUERA
 
 DELETE FROM CHEQUE WHERE 1=1;
+
+
+
+
+
+
+
+
+
+
 
 
 CREATE OR REPLACE PROCEDURE cargar_lote
