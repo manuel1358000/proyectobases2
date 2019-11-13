@@ -953,6 +953,8 @@ io.on('connection', function(socket) {
         }
     });
     socket.on('execute-bulk-load',async function(data){
+        var index = data.index;
+        delete data.index;
         try {
             console.log('Initializing database module');
             await database.initialize(); 
@@ -967,11 +969,14 @@ io.on('connection', function(socket) {
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
+            console.log('BeginTransaccion:'+index);
             const result = await database.simpleExecute(strQuery,data);
             console.log(result);
+            console.log('FinishTransaccion:'+index);
             socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
             
         } catch (err) {
+            console.log('ErrorTransaccion:'+index);
             console.log(err);
             socket.emit('response-bulk-load-item',{message:'Cheque no realizado'});
             //socket.emit('message-action',{message:err});
