@@ -68,10 +68,13 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     }
 }
 function startBulkLoad(){
+    var numero=0;
     _dataFileJSON.map((it,ii)=>{
+        numero++;
         console.log(it);
         var idName="_spinnerBulkLoad"+(ii+1);
         try {
+            console.log(numero);
             document.getElementById(idName).style.display="inline-block";
             socket.emit('execute-bulk-load',it);
         } catch (error) {
