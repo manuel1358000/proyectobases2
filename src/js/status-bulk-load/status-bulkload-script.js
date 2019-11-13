@@ -7,6 +7,7 @@ async function loadBulkLoadOwnChecks(dataFile)  {
             htmlx+='<tr>';
             htmlx+='<th scope="row">'+(ii+1)+'</th>';
             var objN={};
+            objN['index']=ii;
              ds.forEach(
                  (item,ij)=>{
                     try {
@@ -63,7 +64,7 @@ async function loadBulkLoadOwnChecks(dataFile)  {
             break;
         case 8:
                 objN['p_monto_cheque']=item;
-            break;
+            break;    
     }
 }
 function startBulkLoad(){
