@@ -10,23 +10,25 @@
 
     <h2><strong>Status de Carga Masiva Cheques Externos</strong></h2>
     <center>
-        <button type="button" class="btn btn-primary" id="_buttonStartRecorder" onclick="startRecorder()"><strong>Iniciar Grabador</strong></button>
+        <button type="button" class="btn btn-primary" id="_buttonStartRecorder" onclick="startRecorder()">        
+            <strong><span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span> Iniciar Grabador</strong>
+        </button>
+            
+            
         <small><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></small>
-        <button type="button" class="btn btn-success" id="_buttonStartBulkLoad" disabled onclick="startBulkLoad()"><strong>Iniciar Carga</strong></button>
+        <button type="button" class="btn btn-warning" id="_buttonStartBulkLoad" disabled onclick="startBulkLoad()">
+                <strong><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span> Iniciar Carga</strong>
+        </button>
     </center>
     
     <table class="table table-striped" id="_tableBulkLoad">
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Usuario</th>
-                <th scope="col">Agencia</th>
-                <th scope="col">Cuenta Destino</th>
+                <th scope="col">Banco</th>
+                <th scope="col">Referencia</th>
                 <th scope="col">Cuenta Cheque</th>
-                <th scope="col">Banco Actual</th>
-                <th scope="col">Banco Cheque</th>
-                <th scope="col">Numero Cheque</th>
-                <th scope="col">Fecha Cheque</th>
+                <th scope="col">No Cheque</th>
                 <th scope="col">Monto Cheque</th>
                 <th scope="col">Status</th>
             <!--

@@ -2,15 +2,21 @@ var _dataFileJSON = [];
 var _checksExtern = false;
 var _storage={}
 async function loadBulkLoadOwnChecks(dataFile)  {
+    var separator =',';
     const {content,option_bulkLoad} = dataFile;
     if(option_bulkLoad=='Cheques de Externos'){
         _storage = dataFile;
-        return _checksExtern=true;
+        _checksExtern=true;
+        separator='|';
+        //return loadBulkLoadExternChecks();
     }
     var htmlx="";
-     content.split('\n').forEach( (line,ii) => {
+    content.split('\n').forEach( (line,ii) => {
+        if(_checksExtern && ii==0){
+            return;
+        }
         if (line.trim()!=""){
-            var ds=line.split(',');
+            var ds=line.split(separator);
             htmlx+='<tr>';
             htmlx+='<th scope="row">'+(ii+1)+'</th>';
             var objN={};
@@ -39,7 +45,11 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     });
     document.getElementById("_bodyBulkLoadTable").innerHTML=htmlx;
     $(document).ready( function () {
-        $('#_tableBulkLoad').DataTable();
+        $('#_tableBulkLoad').DataTable({
+            "scrollY": "300px",
+            "scrollCollapse": true,
+            "paging": false
+        });
     } );
 }
 
@@ -97,12 +107,16 @@ function startBulkLoad(){
 function startRecorder(){
     const {content} = _storage;
     if(!_checksExtern) return ;
+    
     try {
         document.getElementById('_spinnerWaitRecorder').style.display='block';
-        initRecorder(content);
-        document.getElementById('_spinnerWaitRecorder').style.display='none';
-        document.getElementById('_buttonStartRecorder').disabled=true;
-        document.getElementById('_buttonStartBulkLoad').disabled=false;
+        setTimeout(() => {
+            initRecorder(content);
+            document.getElementById('_spinnerWaitRecorder').style.display='none';
+            document.getElementById('_buttonStartRecorder').disabled=true;
+            document.getElementById('_buttonStartBulkLoad').disabled=false;    
+        }, 1000);
+        
     } catch (error) {
         alert('Ha Ocurrido un Error en el Grabador:'+error);
         document.getElementById('_spinnerWaitRecorder').style.display='none';
