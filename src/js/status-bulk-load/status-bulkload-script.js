@@ -1,8 +1,11 @@
 var _dataFileJSON = [];
+var _checksExtern = false;
+var _storage={}
 async function loadBulkLoadOwnChecks(dataFile)  {
     const {content,option_bulkLoad} = dataFile;
     if(option_bulkLoad=='Cheques de Externos'){
-        return loadBulkLoadExternChecks(content);
+        _storage = dataFile;
+        return _checksExtern=true;
     }
     var htmlx="";
      content.split('\n').forEach( (line,ii) => {
@@ -41,17 +44,7 @@ async function loadBulkLoadOwnChecks(dataFile)  {
 }
 
 function loadBulkLoadExternChecks(content){
-    //First Line Contain Header File
-    var lines=content.split('\n');
-    var headerFile = lines.splice(0,1);//Header
-    //- VERIFICA QUE LA SUMA TOTAL DE LOS CHEQUES CON EL VALOR DEL ENCABEZADO
-    lines.forEach(el=>{
-
-    });
-    console.log(lines);
-    
-    //- VERIFICA EL NUMERO DE CHEQUES ES EL MISMO AL NUMERO DE DOCUMENTOS DEL ENCABEZADO
-
+    initRecorder(content);
 }
 
 function insertDatainJSON(item,ii,objN){
@@ -86,6 +79,9 @@ function insertDatainJSON(item,ii,objN){
     }
 }
 function startBulkLoad(){
+    /*if(){
+        return loadBulkLoadExternChecks(content);
+    }*/
     _dataFileJSON.map((it,ii)=>{
         console.log(it);
         var idName="_spinnerBulkLoad"+(ii+1);
@@ -96,4 +92,61 @@ function startBulkLoad(){
             console.log(error);
         }
     });
+}
+
+function startRecorder(){
+    const {content} = _storage;
+    if(!_checksExtern) return ;
+    try {
+        document.getElementById('_spinnerWaitRecorder').style.display='block';
+        initRecorder(content);
+        document.getElementById('_spinnerWaitRecorder').style.display='none';
+        document.getElementById('_buttonStartRecorder').disabled=true;
+        document.getElementById('_buttonStartBulkLoad').disabled=false;
+    } catch (error) {
+        alert('Ha Ocurrido un Error en el Grabador:'+error);
+        document.getElementById('_spinnerWaitRecorder').style.display='none';
+        document.getElementById('_buttonStartRecorder').disabled=false;
+        document.getElementById('_buttonStartBulkLoad').disabled=true;
+    }
+}
+
+function initRecorder(content){
+    //First Line Contain Header File
+    var lines=content.split('\n');
+    var headerFile = lines.splice(0,1)[0];//Header
+    var structHeader = headerFile.split('|');
+    console.log(structHeader);
+    var foundValue = structHeader.find(el=>{
+        return el.toLowerCase().indexOf('valor')!=-1;
+    });
+    var foundNoDocuments = structHeader.find(el=>{
+        return el.toLowerCase().indexOf('nodoc')!=-1;
+    });
+ 
+    if(foundValue && foundNoDocuments){
+        //Filter lines
+        lines = lines.filter(el=>{  return el != null && el!='' });
+        //- VERIFICA QUE LA SUMA TOTAL DE LOS CHEQUES CON EL VALOR DEL ENCABEZADO
+        //- VERIFICA EL NUMERO DE CHEQUES ES EL MISMO AL NUMERO DE DOCUMENTOS DEL ENCABEZADO
+        socket.emit('recorderVerification',{
+            valor:(foundValue.split(':'))[1],
+            lines:lines,
+            noDocuments: (foundNoDocuments.split(':'))[1]
+        });
+    }
+}
+
+function finishedRecorderOperation({result}){
+    if(result){
+        alert('Verificacion de Grabador Correcta');
+        document.getElementById('_spinnerWaitRecorder').style.display='none';
+        document.getElementById('_buttonStartRecorder').disabled=true;
+        document.getElementById('_buttonStartBulkLoad').disabled=false;
+    }else{
+        alert('NoDocumentos No Concuerda\no Valor No Concuerda Con Suma del Valor de Cheques');
+        document.getElementById('_spinnerWaitRecorder').style.display='none';
+        document.getElementById('_buttonStartRecorder').disabled=false;
+        document.getElementById('_buttonStartBulkLoad').disabled=true;
+    }
 }

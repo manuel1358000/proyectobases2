@@ -53,3 +53,7 @@ socket.on('response-bulk-load-item',function(data){
 socket.on('receive-data-from-last-file',function(data){
   loadBulkLoadOwnChecks(data);
 });
+//Obtiene la Verificacion del Server del Grabador
+socket.on('receive-verification-recorder-server',function(data){
+  finishedRecorderOperation(data);
+});
