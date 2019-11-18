@@ -32,7 +32,13 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     });
     document.getElementById("_bodyBulkLoadTable").innerHTML=htmlx;
     $(document).ready( function () {
-        $('#_tableBulkLoad').DataTable();
+        $('#_tableBulkLoad').DataTable(
+            {
+                "scrollY":$(window).height()/2,
+                "scrollCollapse": true,
+                "paging":false
+            }
+        );
     } );
 }
 
