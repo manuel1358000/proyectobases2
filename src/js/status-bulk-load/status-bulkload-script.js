@@ -22,7 +22,7 @@ async function loadBulkLoadOwnChecks(dataFile)  {
             htmlx+='<tr>';
             htmlx+='<th scope="row">'+(ii+1)+'</th>';
             var objN={};
-            objN['index']=ii;
+            objN['index']=(ii+1);
              ds.forEach(
                  (item,ij)=>{
                     try {
@@ -39,6 +39,8 @@ async function loadBulkLoadOwnChecks(dataFile)  {
                             '<div class="bounce1"></div>'+
                             '<div class="bounce2"></div>'+
                             '<div class="bounce3"></div>'+
+                        '</div>'+
+                        '<div style="display:none;" id="_transactionItem'+(ii+1)+'">'+
                         '</div>'+
                     '</td>';
             htmlx+='</tr>';
@@ -94,10 +96,10 @@ function insertDatainJSON(item,ii,objN){
 }
 function startBulkLoad(){
     var numero=0;
-    _dataFileJSON.map((it,ii)=>{
+    _dataFileJSON.map(it=>{
         numero++;
         console.log(it);
-        var idName="_spinnerBulkLoad"+(ii+1);
+        var idName="_spinnerBulkLoad"+(it.index);
         try {
             console.log(numero);
             document.getElementById(idName).style.display="inline-block";

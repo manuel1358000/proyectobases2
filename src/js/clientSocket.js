@@ -46,8 +46,11 @@ socket.on('enviar-bancos',function(data){
 socket.on('mandar-datos-banco',function(data){
   mostrarBanco(data);
 });
-socket.on('response-bulk-load-item',function(data){
-  console.log(data.message);
+socket.on('response-bulk-load-item',function({message,failed,num}){
+  var _transactionItem = document.getElementById("_transactionItem"+(num));
+  _transactionItem.style.display="inline-block";
+  _transactionItem.innerText=message;
+  document.getElementById("_spinnerBulkLoad"+(num)).style.display="none";
 });
 //obtiene los datos del ultimo archivo cargado (Cheques del Banco  Nuestro)
 socket.on('receive-data-from-last-file',function(data){

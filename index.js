@@ -976,19 +976,20 @@ io.on('connection', function(socket) {
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
-            console.log('BeginTransaccion:'+(index+1));
+            console.log('BeginTransaccion:'+(index));
             database.simpleExecute(strQuery,data).then((result)=>{
                 console.log(result);
-                console.log('FinishTransaccion:'+(index+1));
-                socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+                console.log('FinishTransaccion:'+(index));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
             }).catch((e)=>{
                 console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
             });
             
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
-            socket.emit('response-bulk-load-item',{message:'Cheque no realizado'});
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:index});
             //socket.emit('message-action',{message:err});
         }
     });
