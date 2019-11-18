@@ -30,7 +30,6 @@ function deleteAccountUser(cod_cliente,cod_cuenta,fecha_apertura){
 
 function mostrarModal(codcuenta){
     document.getElementById("btnSolicitarChequera").onclick=function() { solicitarChequera(codcuenta); }
-
     document.getElementById("formSolicitarChequera").style.display='block';
     window.scrollTo(0, 0);
 }
@@ -54,7 +53,7 @@ function solicitarChequera(idCuenta){
 			estado:estado,
 			ultimo_cheque:ultimo_cheque,
 			cuenta_cod_cuenta:id_cuenta
-		};
+        };
 		socket.emit('solicitar_chequera',valores);
     });
 }

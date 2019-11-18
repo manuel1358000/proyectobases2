@@ -878,8 +878,9 @@ io.on('connection', function(socket) {
     socket.on('solicitar_chequera',async function(data){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('insert into chequera(NO_CHEQUES,FECHA_EMISION,ESTADO,CUENTA_COD_CUENTA,ULTIMO_CHEQUE)values('+data['no_cheques']+',TO_DATE(\''+data['fecha_emision']+'\',\'YYYY-MM-DD\'),\''+data['estado']+'\','+data['cuenta_cod_cuenta']+','+data['ultimo_cheque']+')');
+            const result = await database.simpleExecute('BEGIN CREAR_CHEQUERA('+data['no_cheques']+',TO_DATE(\''+data['fecha_emision']+'\',\'YYYY-MM-DD\'),\''+data['estado']+'\','+data['cuenta_cod_cuenta']+','+data['ultimo_cheque']+'); END;');
             console.log(result);
+            socket.emit('message-action',{message:'SOLICITUD DE CHEQUERA REALIZADA'})
         } catch (err) {
             console.log(err);
         }
@@ -952,7 +953,7 @@ io.on('connection', function(socket) {
         } catch (error) {
         }
     });
-    socket.on('execute-bulk-load',async function(data){
+    socket.on('execute-bulk-load',function(data){
         var index = data.index;
         delete data.index;
         try {
@@ -967,11 +968,15 @@ io.on('connection', function(socket) {
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
-            console.log('BeginTransaccion:'+index);
-            const result = await database.simpleExecute(strQuery,data);
-            console.log(result);
-            console.log('FinishTransaccion:'+index);
-            socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+            console.log('BeginTransaccion:'+(index+1));
+            database.simpleExecute(strQuery,data).then((result)=>{
+                console.log(result);
+                console.log('FinishTransaccion:'+(index+1));
+                socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+            }).catch((e)=>{
+                console.log(e);
+            });
+            
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
@@ -1005,6 +1010,6 @@ function readFile(fileName) {
     });
 }
 
-server.listen(3000,'0.0.0.0', function() {
+server.listen(3000,'127.0.0.1', function() {
 	console.log('Servidor corriendo en http://localhost:3000');
 });
