@@ -47,11 +47,13 @@ async function loadBulkLoadOwnChecks(dataFile)  {
     });
     document.getElementById("_bodyBulkLoadTable").innerHTML=htmlx;
     $(document).ready( function () {
-        $('#_tableBulkLoad').DataTable({
-            "scrollY": $(window).height()/2,
-            "scrollCollapse": true,
-            "paging": false
-        });
+        $('#_tableBulkLoad').DataTable(
+            {
+                "scrollY":$(window).height()/2,
+                "scrollCollapse": true,
+                "paging":false
+            }
+        );
     } );
 }
 
@@ -91,13 +93,13 @@ function insertDatainJSON(item,ii,objN){
     }
 }
 function startBulkLoad(){
-    /*if(){
-        return loadBulkLoadExternChecks(content);
-    }*/
+    var numero=0;
     _dataFileJSON.map((it,ii)=>{
+        numero++;
         console.log(it);
         var idName="_spinnerBulkLoad"+(ii+1);
         try {
+            console.log(numero);
             document.getElementById(idName).style.display="inline-block";
             socket.emit('execute-bulk-load',it);
         } catch (error) {
