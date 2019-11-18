@@ -40,6 +40,10 @@ app.get('/status-bulk-load',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load/status-bulk-load.html'));
 });
 
+app.get('/status-bulk-load-extern',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/status-bulk-load-extern.html'));
+});
+
 app.post('/upload', function(req, res) {
     
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -54,9 +58,13 @@ app.post('/upload', function(req, res) {
         return res.status(500).send(err);      
       currentEdit['last_file']= __dirname+'/src/assets/'+req.files.log.name;
       currentEdit['option_bulkLoad']= req.body.selectOperationBuckLoad;
-      console.log(currentEdit.option_bulkLoad);
       //res.send('Cargado Exitosamente');
-      res.redirect('/status-bulk-load');
+      if(currentEdit.option_bulkLoad='Cheques de Externos'){
+        res.redirect('/status-bulk-load-extern');
+      }else{
+        res.redirect('/status-bulk-load');
+      }
+      
     });
 });
 
@@ -968,19 +976,20 @@ io.on('connection', function(socket) {
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
-            console.log('BeginTransaccion:'+(index+1));
+            console.log('BeginTransaccion:'+(index));
             database.simpleExecute(strQuery,data).then((result)=>{
                 console.log(result);
-                console.log('FinishTransaccion:'+(index+1));
-                socket.emit('response-bulk-load-item',{message:'Cheque EXITOSO'});
+                console.log('FinishTransaccion:'+(index));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
             }).catch((e)=>{
                 console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
             });
             
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
-            socket.emit('response-bulk-load-item',{message:'Cheque no realizado'});
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:index});
             //socket.emit('message-action',{message:err});
         }
     });
@@ -989,13 +998,27 @@ io.on('connection', function(socket) {
            
            if(currentEdit.last_file){
                 const val=await readFile(currentEdit.last_file);
-                socket.emit('receive-data-from-last-file',{content:val});
+                socket.emit('receive-data-from-last-file',{content:val,option_bulkLoad:currentEdit.option_bulkLoad});
            }else{
                console.log('last_file is empty');
            }
        } catch (error) {
            
        } 
+    });
+    socket.on('recorderVerification',function({valor,lines,noDocuments}){
+        try {
+            var total=0;
+            lines.forEach(element => {
+                var lineArray=element.split('|');
+                total += parseFloat(lineArray[4]);
+            });
+            var isOK = lines.length==noDocuments && parseFloat(total)==parseFloat(valor);
+            console.log(isOK);
+            socket.emit('receive-verification-recorder-server',{result:isOK});
+        } catch (error) {
+            console.log(error);
+        }        
     });
 });
 
