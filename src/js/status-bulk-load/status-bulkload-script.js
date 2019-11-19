@@ -4,7 +4,7 @@ var _storage={}
 async function loadBulkLoadOwnChecks(dataFile)  {
     var separator =',';
     const {content,option_bulkLoad} = dataFile;
-    if(option_bulkLoad=='Cheques de Externos'){
+    if(option_bulkLoad=='Archivos Conciliacion OUT' || option_bulkLoad=='Archivos Conciliados IN[OK]'){
         _storage = dataFile;
         _checksExtern=true;
         separator='|';

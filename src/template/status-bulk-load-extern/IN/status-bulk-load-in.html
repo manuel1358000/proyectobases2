@@ -1,0 +1,60 @@
+<div data-include="/common/header.html"></div>
+<link rel="stylesheet" type="text/css" href="template/status-bulk-load-extern/status-bulk-load-extern.css">
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+<div class="container-fluid">
+    <div class="spinner" id="_spinnerWaitRecorder" style="display: none"></div>
+
+    <h2><strong>Status de Archivo de Conciliado IN[OK]</strong></h2>
+    <center>
+        <button type="button" class="btn btn-primary" id="_buttonStartRecorder" onclick="startRecorder()">        
+            <strong><span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span> Iniciar Grabador</strong>
+        </button>
+            
+            
+        <small><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></small>
+        <button type="button" class="btn btn-warning" id="_buttonStartBulkLoad" disabled onclick="startBulkLoad()">
+                <strong><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span> Iniciar Carga</strong>
+        </button>
+    </center>
+    
+    <table class="table table-striped" id="_tableBulkLoad">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Banco</th>
+                <th scope="col">Referencia</th>
+                <th scope="col">Cuenta Cheque</th>
+                <th scope="col">No Cheque</th>
+                <th scope="col">Monto Cheque</th>
+                <th scope="col">Status</th>
+            <!--
+            <th scope="col">#</th>
+            <th scope="col">Banco</th>
+            <th scope="col">Numero Cheque</th>
+            <th scope="col">Monto</th>
+            <th scope="col">Cuenta Destino</th>
+            <th scope="col">Fecha Cheque</th>
+            <th scope="col">Status</th>
+            Cajero
+            Agencia-->
+            </tr>
+        </thead>
+        <tbody id="_bodyBulkLoadTable">
+            
+        </tbody>
+    </table>
+</div>
+<script src="/js/csi.min.js"></script>
+<script src="/js/status-bulk-load/status-bulkload-script.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/clientSocket.js"></script>
+
+<script>
+socket.emit('get-data-from-last-file',null);
+</script>
+</body>
+</html>
