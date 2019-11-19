@@ -1,15 +1,14 @@
-function loadSelectForGenerator(){
-    var data=['Banco01','Banco02','Banco04'];
+function loadSelectForGenerator({data}){
     // get reference to select element
     var sel = document.getElementById('_selectBank');
     data.forEach(
-        el=>{
+        ({BANCO})=>{
             // create new option element
             var opt = document.createElement('option');
             // create text node to add to option element (opt)
-            opt.appendChild( document.createTextNode(el) );
+            opt.appendChild( document.createTextNode('BANCO '+BANCO) );
             // set value property of opt
-            opt.value = el; 
+            opt.value = BANCO; 
             // add opt to end of select box (sel)
             sel.appendChild(opt);
         }
@@ -17,9 +16,7 @@ function loadSelectForGenerator(){
 }
 
 function generarFileOUT(){
-    console.log(document.getElementById("_selectBank").value );
-    document.location.href = '/downloadOut'
-
-
-
+    console.log( );
+    socket.emit('generate-out-file-bank',{id:document.getElementById("_selectBank").value});
+    //document.location.href = '/downloadOut'
 }

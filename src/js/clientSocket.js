@@ -41,7 +41,6 @@ socket.on('mandar-datos-agencia',function(data){
 socket.on('enviar-bancos',function(data){
   cargarBancos(data);
 });
-
 //mostrar info de banco para editar
 socket.on('mandar-datos-banco',function(data){
   mostrarBanco(data);
@@ -70,3 +69,12 @@ const errorTypes={
   '20030':'CHEQUE PAGADO/EXTRAVIADO/CANCELADO',
   '20040':'CUENTA CHEQUE SIN FONDOS'
 }
+
+//Obtiene listado de bancos para generator out
+socket.on('receive-all-banks-generator',function(data){
+  loadSelectForGenerator(data);
+});
+
+socket.on('redirect-page-no-reload',function(data){
+  document.location.href = data.url;
+});

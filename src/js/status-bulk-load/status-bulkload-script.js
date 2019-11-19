@@ -1,20 +1,20 @@
 var _dataFileJSON = [];
 var _checksExtern = false;
 var _storage={}
+var header='';
 async function loadBulkLoadOwnChecks(dataFile)  {
     var separator =',';
-    const {content,option_bulkLoad} = dataFile;
+    const {content,option_bulkLoad,filename} = dataFile;
     if(option_bulkLoad=='Archivos Conciliacion OUT' || option_bulkLoad=='Archivos Conciliados IN[OK]'){
         _storage = dataFile;
         _checksExtern=true;
         separator='|';
+        header=filename;
         //return loadBulkLoadExternChecks();
     }
     var htmlx="";
     var allLines=content.split('\n');
-    if(_checksExtern){
-        allLines.splice(0,1);
-    }
+    
     allLines.forEach( (line,ii) => {
         
         if (line.trim()!=""){
@@ -134,25 +134,20 @@ function startRecorder(){
 function initRecorder(content){
     //First Line Contain Header File
     var lines=content.split('\n');
-    var headerFile = lines.splice(0,1)[0];//Header
-    var structHeader = headerFile.split('|');
-    console.log(structHeader);
-    var foundValue = structHeader.find(el=>{
-        return el.toLowerCase().indexOf('valor')!=-1;
-    });
-    var foundNoDocuments = structHeader.find(el=>{
-        return el.toLowerCase().indexOf('nodoc')!=-1;
-    });
- 
+    var headerFile = header.split('.')[0];//Header
+    var structHeader = headerFile.split('_');
+    var foundValue = structHeader.length<=4? structHeader[3]:0;
+    var foundNoDocuments = structHeader.length>=3? structHeader[2]:0;
+    
     if(foundValue && foundNoDocuments){
         //Filter lines
         lines = lines.filter(el=>{  return el != null && el!='' });
         //- VERIFICA QUE LA SUMA TOTAL DE LOS CHEQUES CON EL VALOR DEL ENCABEZADO
         //- VERIFICA EL NUMERO DE CHEQUES ES EL MISMO AL NUMERO DE DOCUMENTOS DEL ENCABEZADO
         socket.emit('recorderVerification',{
-            valor:(foundValue.split(':'))[1],
+            valor:foundValue,
             lines:lines,
-            noDocuments: (foundNoDocuments.split(':'))[1]
+            noDocuments: foundNoDocuments
         });
     }
 }

@@ -56,7 +56,7 @@ app.get('/generator-file-out',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/GEN/generator-out.html'));
 });
 
-app.get('/downloadOut', (req, res) => res.download(__dirname+'/src/assets/datos.txt'))
+app.get('/downloadOut', (req, res) => res.download(currentEdit.file_generated_out))
 
 app.post('/upload', function(req, res) {
     
@@ -985,6 +985,7 @@ io.on('connection', function(socket) {
         delete data.index;
         try {
             var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
+            var strQuery2 ="BEGIN DEPOSITO_CHEQUE_EXTERNO(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             data.p_usuario=parseInt(data.p_usuario);
             data.p_agencia=parseInt(data.p_agencia);
             data.p_cuenta_destino=parseInt(data.p_cuenta_destino);
@@ -996,15 +997,37 @@ io.on('connection', function(socket) {
             data.p_fecha_cheque=data.p_fecha_cheque.replace('\'','');
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
             console.log('BeginTransaccion:'+(index));
-            database.simpleExecute(strQuery,data).then((result)=>{
-                console.log(result);
-                console.log('FinishTransaccion:'+(index));
-                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
+            if(data.p_banco_actual==data.p_banco_cheque){
+                database.simpleExecute(strQuery,data).then((result)=>{
+                    console.log(result);
+                    console.log('FinishTransaccion:'+(index));
+                    socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
+                }).catch((e)=>{
+                    console.log(e);
+                    socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
+                });
+            }else{
+                database.simpleExecute(strQuery2,data).then((result)=>{
+                    console.log(result);
+                    console.log('FinishTransaccion:'+(index));
+                    socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
+                }).catch((e)=>{
+                    console.log(e);
+                    socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
+                });
+                
+            }
+            /*database.simpleExecute("SELECT DISTINCT(banco) FROM CHEQUE_TEMPORAL where LOTE_COD_LOTE is null order by banco").then((result)=>{
+                console.log(result.rows);
             }).catch((e)=>{
                 console.log(e);
-                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
-            });
-            
+            });*/
+            /*var strQuery3 ="SELECT BANCO,COD_CHEQUE_TEMPORAL AS REFERENCIA,CUENTA,CHEQUE AS NO_CHEQUE,VALOR AS MONTO FROM CHEQUE_TEMPORAL WHERE BANCO=3 AND LOTE_COD_LOTE IS NULL";
+            database.simpleExecute(strQuery3).then((result)=>{
+                console.log(result.rows);
+            }).catch((e)=>{
+                console.log(e);
+            });*/
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
@@ -1017,7 +1040,8 @@ io.on('connection', function(socket) {
            
            if(currentEdit.last_file){
                 const val=await readFile(currentEdit.last_file);
-                socket.emit('receive-data-from-last-file',{content:val,option_bulkLoad:currentEdit.option_bulkLoad});
+                var filename = path.parse(currentEdit.last_file).base;
+                socket.emit('receive-data-from-last-file',{content:val,option_bulkLoad:currentEdit.option_bulkLoad,filename:filename});
            }else{
                console.log('last_file is empty');
            }
@@ -1039,6 +1063,46 @@ io.on('connection', function(socket) {
             console.log(error);
         }        
     });
+    socket.on('get-all-banks-generator',async function(data){
+
+        try{
+            await database.initialize();
+            var query='SELECT DISTINCT(banco) FROM CHEQUE_TEMPORAL where LOTE_COD_LOTE is null order by banco';
+            const result=await database.simpleExecute(query);
+            
+            socket.emit('receive-all-banks-generator',{data:result.rows});
+            /*
+            socket.emit('receive-all-banks-generator',{url:'/transferencia_fondos'});
+            console.log('Se realizo la transaccion');*/
+        }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'Error al seleccionar bancos'});
+        }
+     });
+
+     socket.on('generate-out-file-bank',async function({id}){
+
+        try{
+            await database.initialize();
+            var query='SELECT BANCO,COD_CHEQUE_TEMPORAL AS REFERENCIA,CUENTA,CHEQUE AS NO_CHEQUE,VALOR AS MONTO '+
+            'FROM CHEQUE_TEMPORAL '+
+            'WHERE BANCO='+parseInt(id)+' AND LOTE_COD_LOTE IS NULL';
+            const result=await database.simpleExecute(query);
+            var strOut=result.rows.map( ({BANCO,REFERENCIA,CUENTA,NO_CHEQUE,MONTO})=>{
+                return BANCO+'|'+REFERENCIA+'|'+CUENTA+'|'+NO_CHEQUE+'|'+MONTO;
+            }).join('\n');
+            var total = result.rows.reduce((previus,{MONTO})=>previus=previus+MONTO,0);
+            console.log(total);
+
+            var filename_=__dirname+'/src/assets/OUT_'+id+'_'+result.rows.length+'_'+total+'.txt'
+            await writeFile(filename_,strOut);
+            currentEdit['file_generated_out']=filename_;
+            socket.emit('redirect-page-no-reload',{url:'/downloadOut'});
+        }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'Error al generar el archivo OUT del banco'+id});
+        }
+     });
 });
 
 function readFile(fileName) {
@@ -1050,6 +1114,10 @@ function readFile(fileName) {
         resolve(data);
       })
     });
+}
+
+async function writeFile(Filename,data){
+    await fs.writeFileSync(Filename, data);
 }
 
 server.listen(3000,'127.0.0.1', function() {
