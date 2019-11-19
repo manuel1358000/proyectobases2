@@ -893,11 +893,11 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-    socket.on('numero_cheques',async function(data){
+    socket.on('numero_cheques',async function({id_cuenta,...otherParams}){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+data['cuenta']);
-            socket.emit('correlativo',result.rows[0]);
+            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+id_cuenta);
+            socket.emit('correlativo',{'result':result.rows[0],id_cuenta:id_cuenta,...otherParams});
         } catch (err) {
             console.error(err);
         }

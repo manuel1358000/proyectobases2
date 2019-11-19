@@ -1,3 +1,39 @@
+CREATE OR REPLACE PROCEDURE GRABAR_CHEQUES_COMPENSADOS(
+p_banco number,
+p_referencia number,
+p_cuenta number,
+p_cheque number,
+p_monto float,
+p_estado varchar2
+)IS
+cursor c_cuenta(pp_cuenta number) is
+select saldo, disponible 
+from cuenta
+where cod_cuenta=pp_cuenta
+for update of saldo;
+BEGIN
+    IF p_estado='OK' THEN
+        UPDATE CHEQUE_TEMPORAL SET ESTADO='OK' WHERE COD_CHEQUE_TEMPORAL=p_referencia; 
+    ELSE
+        UPDATE CHEQUE_TEMPORAL SET ESTADO='RECHAZADO' WHERE COD_CHEQUE_TEMPORAL=p_referencia; 
+    END IF;
+END GRABAR_CHEQUES_COMPENSADOS;
+
+
+
+INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,cuenta_cod_cuenta) 
+values(TO_DATE(sysdate,'YYYY-MM-DD'),'RETIRO','CHEQUE',v_cuenta.saldo,p_monto,v_cuenta.saldo-p_monto,'1','RECHAZADO','COMPENSACION RECHAZADA','123456',1,1,p_cuenta);                             
+INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,cuenta_cod_cuenta) 
+values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',v_destino.saldo,p_monto,v_destino.saldo+p_monto,'1','','','123456',1,1,p_cuenta);                 
+            
+
+
+
+
+SELECT * FROM TRANSACCION;
+
+
+
 --select que trae todos los bancos de la tabla de cheques temporales
 SELECT DISTINCT(banco)
 FROM CHEQUE_TEMPORAL where LOTE_COD_LOTE is null
@@ -10,8 +46,6 @@ WHERE BANCO=3 AND LOTE_COD_LOTE IS NULL;
 
 
 SELECT * FROM CHEQUE_TEMPORAL;
-
-
 
 
 CREATE OR REPLACE PROCEDURE DEPOSITO_CHEQUE_EXTERNO(
