@@ -1035,6 +1035,34 @@ io.on('connection', function(socket) {
             //socket.emit('message-action',{message:err});
         }
     });
+
+    socket.on('execute-bulk-load-in-tmp',function(data){
+        const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_estado,index} = data;
+        var indeXx = data.index;
+        delete data.index;
+        try {
+            var strQuery ="BEGIN GRABAR_CHEQUES_COMPENSADOS(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_estado); END;";
+            data.p_banco=parseInt(p_banco);
+            data.p_referencia=parseInt(p_referencia);
+            data.p_cuenta=parseInt(p_cuenta);
+            data.p_cheque=parseInt(p_cheque);
+            data.p_monto=parseFloat(p_monto);
+            console.log('BeginTransaccion:'+(indeXx));
+            database.simpleExecute(strQuery,data).then((result)=>{
+                console.log(result);
+                console.log('FinishTransaccion:'+(indeXx));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
+            }).catch((e)=>{
+                console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:indeXx});
+            });
+        } catch (err) {
+            console.log('ErrorTransaccion:'+indeXx);
+            console.log(err);
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:indeXx});
+        }
+    });
+
     socket.on('get-data-from-last-file',async function(data){
        try {
            

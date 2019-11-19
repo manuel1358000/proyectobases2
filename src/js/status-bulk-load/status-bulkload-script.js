@@ -26,7 +26,11 @@ async function loadBulkLoadOwnChecks(dataFile)  {
              ds.forEach(
                  (item,ij)=>{
                     try {
-                         insertDatainJSON(item,ij,objN);    
+                        if(_checksExtern){
+                            insertDatainJSON2(item,ij,objN);  
+                        }else{
+                            insertDatainJSON(item,ij,objN);
+                        }
                     } catch (error) {
                         console.log(error);
                     }
@@ -94,16 +98,55 @@ function insertDatainJSON(item,ii,objN){
             break;    
     }
 }
-function startBulkLoad(){
-    var numero=0;
+
+function insertDatainJSON2(item,ii,objN){
+    switch(ii){
+        case 0:
+                objN['p_banco']=item;
+            break;
+        case 1:
+                objN['p_referencia']=item;
+            break;
+        case 2:
+                objN['p_cuenta']=item;
+            break;
+        case 3:
+                objN['p_cheque']=item;
+            break;
+        case 4:
+                objN['p_monto']=item;
+            break;
+        case 5:
+                objN['p_estado']=item;
+            break; 
+    }
+}
+
+function _recordInOKinTemp(){
     _dataFileJSON.map(it=>{
-        numero++;
+        console.log(it);
+        var idName="_spinnerBulkLoad"+(it.index);
+        document.getElementById(idName).style.display="inline-block";
+        try {
+            socket.emit('execute-bulk-load-in-tmp',it);
+        } catch (error) {
+            console.log(error);
+        }
+    });
+} 
+
+function startBulkLoad(){
+    _dataFileJSON.map(it=>{
         console.log(it);
         var idName="_spinnerBulkLoad"+(it.index);
         try {
-            console.log(numero);
             document.getElementById(idName).style.display="inline-block";
-            socket.emit('execute-bulk-load',it);
+            if(_checksExtern){
+                //socket.emit('execute-bulk-load-in',it);
+            }else{
+                socket.emit('execute-bulk-load',it);
+            }
+            
         } catch (error) {
             console.log(error);
         }
@@ -154,10 +197,12 @@ function initRecorder(content){
 
 function finishedRecorderOperation({result}){
     if(result){
-        alert('Verificacion de Grabador Correcta');
         document.getElementById('_spinnerWaitRecorder').style.display='none';
         document.getElementById('_buttonStartRecorder').disabled=true;
         document.getElementById('_buttonStartBulkLoad').disabled=false;
+        
+        setTimeout(() => {  _recordInOKinTemp(); },1000);
+        
     }else{
         alert('NoDocumentos No Concuerda\no Valor No Concuerda Con Suma del Valor de Cheques');
         document.getElementById('_spinnerWaitRecorder').style.display='none';
