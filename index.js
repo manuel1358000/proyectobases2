@@ -44,6 +44,13 @@ app.get('/status-bulk-load-extern',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/status-bulk-load-extern.html'));
 });
 
+app.get('/status-bulk-load-out',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/OUT/status-bulk-load-out.html'));
+});
+
+app.get('/status-bulk-load-in',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/IN/status-bulk-load-in.html'));
+});
 app.post('/upload', function(req, res) {
     
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -59,12 +66,17 @@ app.post('/upload', function(req, res) {
       currentEdit['last_file']= __dirname+'/src/assets/'+req.files.log.name;
       currentEdit['option_bulkLoad']= req.body.selectOperationBuckLoad;
       //res.send('Cargado Exitosamente');
-      if(currentEdit.option_bulkLoad=='Cheques de Externos'){
-        res.redirect('/status-bulk-load-extern');
-      }else{
-        res.redirect('/status-bulk-load');
+      switch(currentEdit.option_bulkLoad){
+        case 'Archivos Conciliacion OUT':
+            res.redirect('/status-bulk-load-out');
+            break;
+        case 'Archivos Conciliados IN[OK]':
+            res.redirect('/status-bulk-load-in');
+            break;    
+        case 'Cheques Propios':
+            res.redirect('/status-bulk-load');
+            break;
       }
-      
     });
 });
 
