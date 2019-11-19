@@ -49,6 +49,9 @@ socket.on('mandar-datos-banco',function(data){
 socket.on('response-bulk-load-item',function({message,failed,num}){
   var _transactionItem = document.getElementById("_transactionItem"+(num));
   _transactionItem.style.display="inline-block";
+  if(failed){
+    message=errorTypes[message];
+  }
   _transactionItem.innerText=message;
   document.getElementById("_spinnerBulkLoad"+(num)).style.display="none";
 });
@@ -60,3 +63,10 @@ socket.on('receive-data-from-last-file',function(data){
 socket.on('receive-verification-recorder-server',function(data){
   finishedRecorderOperation(data);
 });
+
+const errorTypes={
+  '20010':'FECHA INVALIDA',
+  '20020':'CHEQUE NO PERTENECE A LA CUENTA',
+  '20030':'CHEQUE PAGADO/EXTRAVIADO/CANCELADO',
+  '20040':'CUENTA CHEQUE SIN FONDOS'
+}
