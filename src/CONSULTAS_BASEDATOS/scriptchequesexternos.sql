@@ -4,6 +4,15 @@ FROM CHEQUE_TEMPORAL where LOTE_COD_LOTE is null
 order by banco;
 
 
+SELECT BANCO,COD_CHEQUE_TEMPORAL AS REFERENCIA,CUENTA,CHEQUE AS NO_CHEQUE,VALOR AS MONTO
+FROM CHEQUE_TEMPORAL
+WHERE BANCO=3 AND LOTE_COD_LOTE IS NULL;
+
+
+SELECT * FROM CHEQUE_TEMPORAL;
+
+
+
 
 CREATE OR REPLACE PROCEDURE DEPOSITO_CHEQUE_EXTERNO(
     p_usuario IN number,
@@ -47,7 +56,7 @@ BEGIN
                 values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',v_destino.saldo,p_monto_cheque,v_destino.saldo+p_monto_cheque,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);                 
                 UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto_cheque, RESERVA=RESERVA+p_monto_cheque  WHERE cod_cuenta=p_cuenta_destino;
             end loop;
-            INSERT INTO CHEQUE_TEMPORAL(CHEQUE,FECHA,CUENTA,VALOR,LOTE_COD_LOTE,BANCO)VALUES(p_numero_cheque,to_date(p_fecha_cheque,'YYYY-MM-DD'),p_cuenta_cheque,p_monto_cheque,null,p_banco_cheque);
+            INSERT INTO CHEQUE_TEMPORAL(CHEQUE,FECHA,CUENTA,VALOR,LOTE_COD_LOTE,BANCO,ESTADO)VALUES(p_numero_cheque,to_date(p_fecha_cheque,'YYYY-MM-DD'),p_cuenta_cheque,p_monto_cheque,null,p_banco_cheque,'CARGADOS');
         ELSE
             DBMS_OUTPUT.put_line('CHEQUE YA FUE PAGADO');
             number_on_hand:=20030;
