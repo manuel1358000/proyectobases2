@@ -51,6 +51,11 @@ app.get('/status-bulk-load-out',function(req,res){
 app.get('/status-bulk-load-in',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/IN/status-bulk-load-in.html'));
 });
+
+app.get('/generator-file-out',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/GEN/generator-out.html'));
+});
+
 app.post('/upload', function(req, res) {
     
     if (!req.files || Object.keys(req.files).length === 0) {
