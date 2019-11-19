@@ -1,0 +1,38 @@
+<div data-include="/common/header.html"></div>
+<link rel="stylesheet" type="text/css" href="template/status-bulk-load-extern/status-bulk-load-extern.css">
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+<div class="container-fluid">
+    <div class="spinner" id="_spinnerWaitRecorder" style="display: none"></div>
+
+    <h2><strong>Generador de Archivo de Conciliacion OUT</strong></h2>
+    <center>
+        <br>
+        <div class="row justify-content-between">
+            <div class="col-sm-4"></div>
+            <div class="offset-sm-6 col-sm-4" style="background-color: teal">
+                    <label for="sel1" style="color: white;font-family: 'Courier New', Courier, monospace">SELECCIONA EL BANCO:</label>
+                    <select class="form-control" id="_selectBank">
+                    </select>
+                    <br>
+            </div>
+        </div>   
+        <br> 
+        <button type="button" class="btn btn-success" onclick="generarFileOUT()">Generar OUT</button>
+
+    </center>
+    
+</div>
+<script src="/js/csi.min.js"></script>
+<script src="/js/status-bulk-load/GEN/generator-out-script.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/clientSocket.js"></script>
+
+<script>
+    loadSelectForGenerator();
+    /*Traer el listado de bancos disponibles para generar el output*/
+</script>
+</body>
+</html>
