@@ -56,6 +56,8 @@ app.get('/generator-file-out',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/GEN/generator-out.html'));
 });
 
+app.get('/downloadOut', (req, res) => res.download(__dirname+'/src/assets/datos.txt'))
+
 app.post('/upload', function(req, res) {
     
     if (!req.files || Object.keys(req.files).length === 0) {

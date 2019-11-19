@@ -18,4 +18,8 @@ function loadSelectForGenerator(){
 
 function generarFileOUT(){
     console.log(document.getElementById("_selectBank").value );
+    document.location.href = '/downloadOut'
+
+
+
 }
