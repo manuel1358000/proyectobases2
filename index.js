@@ -59,7 +59,7 @@ app.post('/upload', function(req, res) {
       currentEdit['last_file']= __dirname+'/src/assets/'+req.files.log.name;
       currentEdit['option_bulkLoad']= req.body.selectOperationBuckLoad;
       //res.send('Cargado Exitosamente');
-      if(currentEdit.option_bulkLoad='Cheques de Externos'){
+      if(currentEdit.option_bulkLoad=='Cheques de Externos'){
         res.redirect('/status-bulk-load-extern');
       }else{
         res.redirect('/status-bulk-load');
