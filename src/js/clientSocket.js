@@ -41,7 +41,6 @@ socket.on('mandar-datos-agencia',function(data){
 socket.on('enviar-bancos',function(data){
   cargarBancos(data);
 });
-
 //mostrar info de banco para editar
 socket.on('mandar-datos-banco',function(data){
   mostrarBanco(data);

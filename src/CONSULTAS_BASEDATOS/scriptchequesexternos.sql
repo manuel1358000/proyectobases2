@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE PROCEDURE DEPOSITO_CHEQUE_EXTERNO(
     p_usuario IN number,
     p_agencia IN number,
@@ -13,6 +14,11 @@ CREATE OR REPLACE PROCEDURE DEPOSITO_CHEQUE_EXTERNO(
 out_of_stock EXCEPTION;
 number_on_hand NUMBER:=666;
 v_error varchar2(32000);
+cursor c_cuenta_destino(pp_cuenta_destino number) is
+select saldo, disponible 
+from cuenta
+where cod_cuenta=pp_cuenta_destino
+for update of saldo;  
 BEGIN
 --VERIFICACIONES QUE SE TIENEN QUE REALIZAR
 --VERIFICAR LA FECHA DEL CHEQUE
@@ -29,10 +35,16 @@ BEGIN
         --VERIFICAR SI EL CHEQUE YA EXISTE EN LA TABLA DE CHEQUES DE COMPENSACION
         --si no existe el cheque entonces si se puede cambiar
         IF VERIFICAR_CHEQUE_EXTERNO(p_numero_cheque,p_cuenta_cheque)=0 THEN
-            INSERT INTO CHEQUE_TEMPORAL()VALUES();
+            --AGREGA EL CHEQUE A LA TABLA DE CHEQUE TEMPORAL
+            for v_destino in c_cuenta_destino(p_cuenta_destino) loop
+                INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,cuenta_cod_cuenta) 
+                values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',v_destino.saldo,p_monto_cheque,v_destino.saldo+p_monto_cheque,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);                 
+                UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto_cheque, RESERVA=RESERVA+p_monto_cheque  WHERE cod_cuenta=p_cuenta_destino;
+            end loop;
+            INSERT INTO CHEQUE_TEMPORAL(CHEQUE,FECHA,CUENTA,VALOR,LOTE_COD_LOTE)VALUES(p_numero_cheque,to_date(p_fecha_cheque,'YYYY-MM-DD'),p_cuenta_cheque,p_monto_cheque,null);
         ELSE
             DBMS_OUTPUT.put_line('CHEQUE YA FUE PAGADO');
-            number_on_hand:=20010;
+            number_on_hand:=20030;
             RAISE out_of_stock;
         END IF;
     END IF;
@@ -52,16 +64,14 @@ BEGIN
         v_error := SQLERRM;
         raise_application_error(-20000,v_error);
         commit;
-    commit;
+commit;
 END DEPOSITO_CHEQUE_EXTERNO;
 
 
-select constraint_name, constraint_type 
-from user_constraints 
-where table_name='MITABLABUSCADA';
 
 
-EXEC DEPOSITO_CHEQUE_EXTERNO(1,1,7,1,2,2,4,'2019-01-01',200);
+
+
 
 
 CREATE OR REPLACE FUNCTION VERIFICAR_CHEQUE_EXTERNO(
@@ -70,7 +80,18 @@ CREATE OR REPLACE FUNCTION VERIFICAR_CHEQUE_EXTERNO(
 )
 RETURN NUMBER IS respuesta NUMBER:=1;
 valor number:=1;
+val number:=1;
+cursor c_cheque_temporal is
+select cod_cheque_temporal
+from cheque_temporal
+where cuenta=no_cuenta and CHEQUE=no_cheque;
 BEGIN
+    for v_cheque in c_cheque_temporal() loop    
+        SELECT cod_cheque_temporal into val
+        FROM CHEQUE_TEMPORAL 
+        WHERE CUENTA=no_cuenta AND cheque=no_cheque
+        FOR UPDATE;
+    END LOOP;
     SELECT COUNT(CHEQUE) INTO valor
     FROM CHEQUE_TEMPORAL
     WHERE CHEQUE=no_cheque and cuenta=no_cuenta;
@@ -324,6 +345,7 @@ END VERIFICAR_CUENTA;
 
 
 
+delete from cheque_temporal where 1=1;
 UPDATE CHEQUE SET MONTO=0, ESTADO='GENERADO' where numero>1;
 update cuenta set saldo=3000, disponible=3000, reserva=0 where cod_cuenta=7;
 update cuenta set saldo=600, disponible=600, reserva=0 where cod_cuenta=1;
@@ -333,3 +355,20 @@ commit;
 
 select * from transaccion;
 select * from cheque order by numero;
+
+
+select * from cheque_temporal;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
