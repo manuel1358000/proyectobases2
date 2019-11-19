@@ -31,7 +31,8 @@
 <script src="/js/clientSocket.js"></script>
 
 <script>
-    loadSelectForGenerator();
+    socket.emit('get-all-banks-generator',null);
+    
     /*Traer el listado de bancos disponibles para generar el output*/
 </script>
 </body>
