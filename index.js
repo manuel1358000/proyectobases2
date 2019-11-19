@@ -996,9 +996,7 @@ io.on('connection', function(socket) {
                     console.log(e);
                     socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
                 });
-            }
-            
-            
+            }            
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
