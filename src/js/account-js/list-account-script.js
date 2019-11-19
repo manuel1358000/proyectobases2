@@ -1,4 +1,4 @@
-
+var cod_cuentaXX;
 function loadAccountsClient(data){
     try {
         document.getElementById('_nameUserAccounts').innerHTML="Cuentas del Usuario:"+data[0].USUARIO;    
@@ -29,14 +29,15 @@ function deleteAccountUser(cod_cliente,cod_cuenta,fecha_apertura){
 }
 
 function mostrarModal(codcuenta){
-    document.getElementById("btnSolicitarChequera").onclick=function() { solicitarChequera(codcuenta); }
+    cod_cuentaXX=codcuenta;
     document.getElementById("formSolicitarChequera").style.display='block';
     window.scrollTo(0, 0);
 }
 
-function solicitarChequera(idCuenta){
+function solicitarChequera(){
+    if(cod_cuentaXX==null) return;
     document.getElementById("formSolicitarChequera").style.display='none';
-	var id_cuenta=parseInt(idCuenta);
+	var id_cuenta=parseInt(cod_cuentaXX);
 	var id_numcheque=document.getElementById('id_numcheques').value;
 	var ts = new Date();
     var fecha_emision=ts.getFullYear()+'-'+("0" + (ts.getMonth() + 1)).slice(-2)+'-'+("0" + (ts.getDay() + 1)).slice(-2);       
