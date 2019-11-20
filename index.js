@@ -145,7 +145,15 @@ app.get('/bancos/editar/:uid',function(req,res){
 /*FIN - BANCOS*/
 
 
-
+/* PAGAR CHEQUE */
+app.get('/ingresar-cheque', function (req, res) {
+    //sess=req.session;
+    //if(sess.email){
+        res.sendFile(path.join(__dirname+'/src/template/ingresar-cheque/ingresar-cheque.html')); //listado
+    //}else{
+        //return res.redirect('/sign-in');
+    //}
+});
 
 
 /*INICIO - AGENCIAS*/
