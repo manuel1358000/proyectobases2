@@ -999,7 +999,7 @@ io.on('connection', function(socket) {
             data.p_monto_cheque=parseFloat(data.p_monto_cheque);
             console.log('BeginTransaccion:'+(index));
             if(data.p_banco_actual==data.p_banco_cheque){
-                database.simpleExecute(strQuery,data).then((result)=>{
+                database.simpleExecute(strQuery,data).then(async (result)=>{
                     console.log(result);
                     console.log('FinishTransaccion:'+(index));
                     socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
@@ -1008,7 +1008,7 @@ io.on('connection', function(socket) {
                     socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:index});
                 });
             }else{
-                database.simpleExecute(strQuery2,data).then((result)=>{
+                database.simpleExecute(strQuery2,data).then(async(result)=>{
                     console.log(result);
                     console.log('FinishTransaccion:'+(index));
                     socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:index});
@@ -1029,6 +1029,7 @@ io.on('connection', function(socket) {
             }).catch((e)=>{
                 console.log(e);
             });*/
+            console.log('Transaccion No.'+index);
         } catch (err) {
             console.log('ErrorTransaccion:'+index);
             console.log(err);
@@ -1184,6 +1185,6 @@ async function writeFile(Filename,data){
     await fs.writeFileSync(Filename, data);
 }
 
-server.listen(3000,'127.0.0.1', function() {
-	console.log('Servidor corriendo en http://localhost:3000');
+server.listen(3000,'192.168.1.46', function() {
+	console.log('Servidor corriendo en http://192.168.1.46:3000');
 });
