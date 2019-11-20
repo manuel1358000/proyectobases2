@@ -2,10 +2,15 @@ var _dataFileJSON = [];
 var _checksExtern = false;
 var _storage={}
 var header='';
+var isOkGrabador=false;
+var isOutForOther=false;
 async function loadBulkLoadOwnChecks(dataFile)  {
     var separator =',';
     const {content,option_bulkLoad,filename} = dataFile;
     if(option_bulkLoad=='Archivos Conciliacion OUT' || option_bulkLoad=='Archivos Conciliados IN[OK]'){
+        if(option_bulkLoad=='Archivos Conciliacion OUT'){
+            isOutForOther=true;
+        }
         _storage = dataFile;
         _checksExtern=true;
         separator='|';
@@ -123,16 +128,27 @@ function insertDatainJSON2(item,ii,objN){
 }
 
 function _recordInOKinTemp(){
-    _dataFileJSON.map(it=>{
-        console.log(it);
-        var idName="_spinnerBulkLoad"+(it.index);
-        document.getElementById(idName).style.display="inline-block";
-        try {
-            socket.emit('execute-bulk-load-in-tmp',it);
-        } catch (error) {
-            console.log(error);
-        }
-    });
+    if(!isOutForOther){
+        _dataFileJSON.map(it=>{
+            var idName="_spinnerBulkLoad"+(it.index);
+            document.getElementById(idName).style.display="inline-block";
+            try {
+                socket.emit('execute-bulk-load-in-tmp',it);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }else{
+        _dataFileJSON.map(it=>{
+            var idName="_spinnerBulkLoad"+(it.index);
+            document.getElementById(idName).style.display="inline-block";
+            try {
+                socket.emit('execute-bulk-load-out-tmp',{...it,p_banco_destino:10});
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
 } 
 
 function startBulkLoad(){
@@ -151,6 +167,24 @@ function startBulkLoad(){
             console.log(error);
         }
     });
+}
+
+function startOperator(){
+    if(isOkGrabador){
+        _dataFileJSON.map(it=>{
+            var _transactionItem = document.getElementById("_transactionItem"+(it.index));
+            _transactionItem.style.display="none";
+            _transactionItem.innerText='';
+
+            var idName="_spinnerBulkLoad"+(it.index);
+            try {
+                document.getElementById(idName).style.display="inline-block";
+                socket.emit('execute-bulk-load-in-tmp',{...it,operando:true});     
+            } catch (error) {
+                console.log(error);
+            }
+        }); 
+    }
 }
 
 function startRecorder(){
@@ -197,12 +231,11 @@ function initRecorder(content){
 
 function finishedRecorderOperation({result}){
     if(result){
+        isOkGrabador=true;
         document.getElementById('_spinnerWaitRecorder').style.display='none';
         document.getElementById('_buttonStartRecorder').disabled=true;
         document.getElementById('_buttonStartBulkLoad').disabled=false;
-        
         setTimeout(() => {  _recordInOKinTemp(); },1000);
-        
     }else{
         alert('NoDocumentos No Concuerda\no Valor No Concuerda Con Suma del Valor de Cheques');
         document.getElementById('_spinnerWaitRecorder').style.display='none';
