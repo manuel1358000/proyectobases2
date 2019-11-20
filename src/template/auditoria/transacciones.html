@@ -1,5 +1,10 @@
 <div data-include="/common/header.html"></div>
 
+<!--DatePicker-->
+<link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css"> 
+<script src="https://unpkg.com/js-datepicker"></script>
+<!---->>
+
 <div class="container">
    <!-- write your html code here-->
    <h3>Listado Usuarios Sistema Bancos</h3>
@@ -12,9 +17,31 @@
                <select id="inputbanco" class="form-control">
                </select>
            </div>
-           <button type="submit" onclick="agregarTransacciones()" class="btn btn-primary">Filtrar</button>
+           <button type="submit" onclick="agregarTransacciones()" class="btn btn-primary">Elegir agencia</button>
        </div>
    </div>
+
+   <div class="container">
+    <div class="form-row">
+        <div class="form-group col-sm-4">
+            <label for="inputBirthday">Fecha</label>
+            <input type="text" class="form-control"  id="_inputFecha_Nac">
+        </div>
+        <button type="submit" onclick="agregar_trans_fecha()" class="btn btn-primary">Elegir fecha</button>
+    </div>
+   </div>
+
+   <div class="container">
+    <div class="form-row">
+        <div class="form-group col-sm-4">
+            <label for="inputbanco">No. Cuenta</label>
+            <input type="text" class="form-control" id="_inputCuenta">
+        </div>
+        <button type="submit" onclick="agregar_trans_cuenta()" class="btn btn-primary">Elegir Cuenta</button>
+    </div>
+   </div>
+
+
 
    <div class="container">
        <table class="table">
@@ -45,4 +72,7 @@
  <script src="/socket.io/socket.io.js"></script>
  <script src="/js/clientSocket.js"></script>
  <script src="/js/auditoria/cargartransac.js"></script>
+ <script src="/js/client-js/manageDatePicker.js"></script>
+ <script>loadDatePicker();</script>
+
 </html>

@@ -557,6 +557,61 @@ io.on('connection', function(socket) {
         }
     });
 
+    socket.on('transacciones-fecha',async function(data){
+        try{
+            if(data == null){
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                io.sockets.emit('listatrans-fecha',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND t.fecha = TO_DATE('" + data + "','DD-MM-YYYY') ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                io.sockets.emit('listatrans-fecha',result.rows);
+            }
+        }catch(err){
+            console.error(err);
+        }
+    });
+
+    socket.on('transacciones-cuenta',async function(data){
+        try{
+            if(data == null){
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                io.sockets.emit('listatrans-cuenta',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND t.usuario_cod_usuario = " + data  + " ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                io.sockets.emit('listatrans-cuenta',result.rows);
+            }
+        }catch(err){
+            console.error(err);
+        }
+    });
+
     //nuevo banco 
     //--Por ahora con una consulta pero se tendra que arreglar luego con un proceso almacenado
     socket.on('crear-banco',async function(data){
