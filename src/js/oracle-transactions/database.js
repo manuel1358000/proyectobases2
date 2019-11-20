@@ -18,7 +18,7 @@ async function close() {
   await oracledb.getPool().close();
 }
 
-function simpleExecute(statement, binds = [], opts = {}) {
+async function simpleExecute(statement, binds = [], opts = {}) {
   return new Promise(async (resolve, reject) => {
     let conn;
  
