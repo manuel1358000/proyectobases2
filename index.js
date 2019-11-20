@@ -1056,7 +1056,7 @@ io.on('connection', function(socket) {
             data.p_cheque=parseInt(p_cheque);
             data.p_monto=parseFloat(p_monto);
             console.log('BeginTransaccion:'+(indeXx));
-            database.simpleExecute(strQuery,data).then((result)=>{
+            database.simpleExecute(strQuery,data).then(async(result)=>{
                 console.log(result);
                 console.log('FinishTransaccion:'+(indeXx));
                 socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
