@@ -9,8 +9,20 @@ p_banco_destino number
 )IS
 BEGIN
     INSERT INTO CHEQUE_TEMPORAL_PROPIO(CHEQUE,CUENTA,VALOR,BANCO,LOTE_COD_LOTE,BANCO_DESTINO,ESTADO)VALUES(p_cheque,p_cuenta,p_monto,p_banco,null,1,'GRABADO');
-    commit;
+    COMMIT;
 END GRABAR_CHECOMP_PROPIO;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -116,16 +128,17 @@ BEGIN
 END GRABAR_CHEQUES_COMPENSADOS;
 
 
+
 --select que trae todos los bancos de la tabla de cheques temporales
 SELECT DISTINCT(banco)
 FROM CHEQUE_TEMPORAL where LOTE_COD_LOTE is null
 order by banco;
 
 
+--trae toda la info del cheque temporal en base a un banco en especifico
 SELECT BANCO,COD_CHEQUE_TEMPORAL AS REFERENCIA,CUENTA,CHEQUE AS NO_CHEQUE,VALOR AS MONTO
 FROM CHEQUE_TEMPORAL
 WHERE BANCO=3 AND LOTE_COD_LOTE IS NULL;
-
 
 SELECT * FROM CHEQUE_TEMPORAL;
 
@@ -236,12 +249,23 @@ END VERIFICAR_CHEQUE_EXTERNO;
 
 
 delete from cheque_temporal where 1=1;
-UPDATE CHEQUE SET MONTO=0, ESTADO='GENERADO' where numero>1;
+UPDATE CHEQUE SET MONTO=0, ESTADO='GENERADO' where numero>0;
 update cuenta set saldo=3000, disponible=3000, reserva=0 where cod_cuenta=7;
-update cuenta set saldo=600, disponible=600, reserva=0 where cod_cuenta=1;
+update cuenta set saldo=3000, disponible=3000, reserva=0 where cod_cuenta=1;
 commit;
 delete from transaccion where 1=1;
 commit;
+
+
+select * from cheque_temporal;
+
+select * from transaccion;
+select * from cuenta;
+
+select * from cheque_temporal;
+select * from cuenta;
+
+
 
 select * from transaccion;
 select * from cheque order by numero;
@@ -287,6 +311,16 @@ update cuenta set saldo=3000, reserva=0, disponible=3000 where cod_cuenta=7;
 delete from cheque_temporal_propio where 1=1;
 commit;
 
+
+
+
+
+
+
+update cuenta set saldo=1800, reserva=1200, disponible=600 where cod_cuenta=1;
+delete from transaccion where cod_transaccion>14361;
+UPDATE CHEQUE_TEMPORAL SET ESTADO=NULL WHERE 1=1;
+commit;
 
 
 

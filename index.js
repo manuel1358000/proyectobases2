@@ -980,10 +980,11 @@ io.on('connection', function(socket) {
         } catch (error) {
         }
     });
-    socket.on('execute-bulk-load',function(data){
+    socket.on('execute-bulk-load',async function(data){
         var index = data.index;
         delete data.index;
         try {
+            await database.initialize();
             var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             var strQuery2 ="BEGIN DEPOSITO_CHEQUE_EXTERNO(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             data.p_usuario=parseInt(data.p_usuario);
@@ -1036,12 +1037,13 @@ io.on('connection', function(socket) {
         }
     });
 
-    socket.on('execute-bulk-load-in-tmp',function(data){
+    socket.on('execute-bulk-load-in-tmp',async function(data){
         const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_estado,index} = data;
         var strNameGrabador='GRABAR_CHEQUES_COMPENSADOS';
         var indeXx = data.index;
         delete data.index;
         try {
+            await database.initialize();
             if(data['operando']){
                 delete data.operando;
                 strNameGrabador='OPERAR_CHEQUES_COMPENSADOS';
@@ -1068,11 +1070,12 @@ io.on('connection', function(socket) {
         }
     });
 
-    socket.on('execute-bulk-load-out-tmp',function(data){
+    socket.on('execute-bulk-load-out-tmp',async function(data){
         const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_banco_destino} = data;
         var indeXx = data.index;
         delete data.index;
         try {
+            await database.initialize();
             var strQuery ="BEGIN GRABAR_CHECOMP_PROPIO(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_banco_destino); END;";
             data.p_banco=parseInt(p_banco);
             data.p_referencia=parseInt(p_referencia);
