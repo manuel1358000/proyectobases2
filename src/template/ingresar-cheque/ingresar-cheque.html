@@ -1,0 +1,92 @@
+<div data-include="/common/header.html"></div>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>Ingresar Cheque</h3>
+ </div>
+ 
+ <div class="container" style="background-color: teal; align-content: center">
+        
+        <div class="row" style="padding-top: 10px;">
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Usuario</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_usuario" required>
+            </div>
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Agencia</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_agencia" required>
+            </div>
+        </div>
+        
+    	<hr>
+        <div class="row">
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Cuenta Destino</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_cuenta_destino" required>
+            </div>
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Cuenta Cheque</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_cuenta_cheque" required>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-1">
+                <label for="inputFieldD">Banco Actual</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_banco_actual" required>
+            </div>
+            <div class="col-sm-1">
+                <label for="inputFieldD">Banco Cheque</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_banco_cheque" required>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Numero Cheque</label>
+            </div>
+            <div class="col-sm-2">
+                    <input type="number" class="form-control" onkeypress="return event.charCode >= 48" min=1  id="p_numero_cheque" required>
+            </div>
+            <div class="col-sm-1">
+                    <label for="inputFieldD">Fecha Cheque</label>
+            </div>
+            <div class="col-sm-2">
+                    <input type="number" class="form-control"  id="p_fecha_cheque" required>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-1">
+                <label for="inputFieldD">Monto Cheque</label>
+            </div>
+            <div class="col-sm-2">
+                <input type="number" class="form-control"  step='0.1' onkeypress="return event.charCode >= 48" min=1  id="p_monto_cheque" required>
+            </div>
+            <div class="col-sm-2">
+                <button onclick="pagar_ingresarCheque()" class="btn btn-success">PAGAR CHEQUE</button>          
+            </div>
+            
+        </div>
+ 
+        <br>
+        
+    </div>
+</body>
+ <script src="/js/csi.min.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/clientSocket.js"></script>
+ <script src="/js/ingresar-cheque/ingresar-cheque-script.js"></script>
+</html>

@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
- 
+  <link rel="stylesheet" href="/common/header.styles.css">
 </head>
 <body>
   <nav class="navbar navbar-inverse">
@@ -27,6 +27,30 @@
         <li><a href="/cancelacion_cheque">Cheque Robado/Extraviado</a></li>
         <li><a href="/consulta_saldo">Consulta Saldos</a></li>
         <li><a href="/transferencia_fondos">Transferencia de Fondos</a></li>
+
+
+        <li class="dropdown">
+            <div class="dropdown">
+                <button class="dropbtn">Operaciones </button>
+                <div class="dropdown-content">
+                  <a href="/ingresar-cheque">Pagar Cheque</a>
+                  <option class="select-hr"></option>
+                  <a href="#">Generador Archivo OUT</a>
+                  <a href="#">Cargar Masiva de Cheques</a>
+                </div>
+              </div>
+        </li>
+        
+        <li class="dropdown">
+            <div class="dropdown">
+                <button class="dropbtn">Auditoria</button>
+                <div class="dropdown-content">
+                  <a href="/transacciones">Transacciones</a>
+                  <option class="select-hr"></option>
+                  
+                </div>
+              </div>
+        </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
