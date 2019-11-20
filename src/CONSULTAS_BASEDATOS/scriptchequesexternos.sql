@@ -250,8 +250,8 @@ END VERIFICAR_CHEQUE_EXTERNO;
 
 delete from cheque_temporal where 1=1;
 UPDATE CHEQUE SET MONTO=0, ESTADO='GENERADO' where numero>0;
-update cuenta set saldo=3000, disponible=3000, reserva=0 where cod_cuenta=7;
-update cuenta set saldo=3000, disponible=3000, reserva=0 where cod_cuenta=1;
+update cuenta set saldo=90000, disponible=90000, reserva=0 where cod_cuenta=7;
+update cuenta set saldo=90000, disponible=90000, reserva=0 where cod_cuenta=1;
 commit;
 delete from transaccion where 1=1;
 commit;

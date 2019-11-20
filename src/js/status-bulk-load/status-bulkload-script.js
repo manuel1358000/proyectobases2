@@ -129,7 +129,7 @@ function insertDatainJSON2(item,ii,objN){
 
 function _recordInOKinTemp(){
     if(!isOutForOther){
-        _dataFileJSON.map(it=>{
+        _dataFileJSON.map(async (it)=>{
             var idName="_spinnerBulkLoad"+(it.index);
             document.getElementById(idName).style.display="inline-block";
             try {
@@ -139,7 +139,7 @@ function _recordInOKinTemp(){
             }
         });
     }else{
-        _dataFileJSON.map(it=>{
+        _dataFileJSON.map(async it=>{
             var idName="_spinnerBulkLoad"+(it.index);
             document.getElementById(idName).style.display="inline-block";
             try {
@@ -152,7 +152,7 @@ function _recordInOKinTemp(){
 } 
 
 function startBulkLoad(){
-    _dataFileJSON.map(it=>{
+    _dataFileJSON.map(async it=>{
         console.log(it);
         var idName="_spinnerBulkLoad"+(it.index);
         try {
@@ -171,7 +171,7 @@ function startBulkLoad(){
 
 function startOperator(){
     if(isOkGrabador){
-        _dataFileJSON.map(it=>{
+        _dataFileJSON.map(async (it)=>{
             var _transactionItem = document.getElementById("_transactionItem"+(it.index));
             _transactionItem.style.display="none";
             _transactionItem.innerText='';
