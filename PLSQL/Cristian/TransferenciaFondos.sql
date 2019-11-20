@@ -1,5 +1,4 @@
---Procedimiento de transferir fondos bancarios del mismo banco
-CREATE OR REPLACE PROCEDURE trans_fondos_mismo_banco(
+create or replace PROCEDURE trans_fondos_mismo_banco(
     --Parametros
     cuenta_origen cuenta.cod_cuenta%type,
     cuenta_destino cuenta.cod_cuenta%type,
@@ -69,8 +68,8 @@ BEGIN
     VALUES 
     (
         CURRENT_DATE,
-        'transferencia',
-        'monetaria',
+        'RETIRO',
+        'TRANSFERENCIA',
         saldo_origen_viejo,
         cantidad_trans*(-1),
         saldo_origen_nuevo,
@@ -98,8 +97,8 @@ BEGIN
     VALUES 
     (
         CURRENT_DATE,
-        'transferencia',
-        'monetaria',
+        'DEPOSITO',
+        'TRANSFERENCIA',
         saldo_destino_viejo,
         cantidad_trans,
         saldo_destino_nuevo,
