@@ -1045,6 +1045,38 @@ io.on('connection', function(socket) {
         }
     });
 
+    socket.on('execute-insert-check',async function(data){
+        var index = 1;
+        try {
+            var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
+            var strQuery2 ="BEGIN DEPOSITO_CHEQUE_EXTERNO(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
+            console.log('BeginTransaccion:'+(index));
+            if(data.p_banco_actual==data.p_banco_cheque){
+                database.simpleExecute(strQuery,data).then(async (result)=>{
+                    console.log(result);
+                    console.log('FinishTransaccion:'+(index));
+                    socket.emit('message-action',{message:'Transaccion Exitosa',failed:false,num:index});
+                }).catch((e)=>{
+                    console.log(e);
+                    socket.emit('message-action',{message:e.errorNum+'',failed:true,num:index});
+                });
+            }else{
+                database.simpleExecute(strQuery2,data).then(async (result)=>{
+                    console.log(result);
+                    console.log('FinishTransaccion:'+(index));
+                    socket.emit('message-action',{message:'Transaccion Exitosa',failed:false,num:index});
+                }).catch((e)=>{
+                    console.log(e);
+                    socket.emit('message-action',{message:e.errorNum+''});
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            socket.emit('message-action',{message:err});
+        }
+    });
+
+
     socket.on('execute-bulk-load-in-tmp',async function(data){
         const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_estado,index} = data;
         var strNameGrabador='GRABAR_CHEQUES_COMPENSADOS';

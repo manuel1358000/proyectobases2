@@ -1,4 +1,3 @@
-import { Socket } from "net";
 
 function  pagar_ingresarCheque(){
     let _object = {
@@ -13,13 +12,19 @@ function  pagar_ingresarCheque(){
         p_monto_cheque:''
     };
 
-    Object.keys(_object).map(el=> _object[el]=document.getElementById(el).value);
+    Object.keys(_object).map(el=> {
+        if(el=='p_monto_cheque'){
+            _object[el]=parseFloat(document.getElementById(el).value);
+        }else{
+            _object[el]=parseInt(document.getElementById(el).value);
+        }
+    });
     var findNull=Object.values(_object).filter(el=> el==null||el=='');
     if(findNull){ 
         alert('Llene Todos Los Campos'); 
         return;
     }else{
-        socket.emit('');
+        socket.emit('execute-insert-check',_object);
     }
     
 }
