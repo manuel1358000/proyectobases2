@@ -89,6 +89,7 @@ validaciones que se tiene que realizar
                             UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto_cheque, DISPONIBLE=DISPONIBLE+p_monto_cheque  WHERE cod_cuenta=p_cuenta_destino;
                         end if;
                     end loop;
+                    commit;
                 ELSE
                     for v_chequera in c_chequera(p_cuenta_cheque,p_numero_cheque) loop    
                         UPDATE CHEQUE SET ESTADO='RECHAZADO', FECHA=sysdate where NUMERO=p_numero_cheque and CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera;
