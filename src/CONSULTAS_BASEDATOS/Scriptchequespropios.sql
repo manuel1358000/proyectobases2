@@ -52,7 +52,6 @@ validaciones que se tiene que realizar
             for v_chequera in c_chequera(p_cuenta_cheque,p_numero_cheque) loop    
                 UPDATE CHEQUE SET ESTADO='RECHAZADO', FECHA=sysdate where NUMERO=p_numero_cheque and CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera;
             end loop; 
-            commit;
             number_on_hand:=20010;
             RAISE out_of_stock; 
         ELSE
@@ -76,7 +75,7 @@ validaciones que se tiene que realizar
                         else 
                             for v_chequera in c_chequera(p_cuenta_cheque,p_numero_cheque) loop    
                                 UPDATE CHEQUE SET ESTADO='RECHAZADO', FECHA=sysdate where NUMERO=p_numero_cheque and CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera;
-                            end loop; 
+                            end loop;
                             number_on_hand:=20040;
                             RAISE out_of_stock; 
                         end if;
@@ -89,18 +88,17 @@ validaciones que se tiene que realizar
                             UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto_cheque, DISPONIBLE=DISPONIBLE+p_monto_cheque  WHERE cod_cuenta=p_cuenta_destino;
                         end if;
                     end loop;
-                    commit;
                 ELSE
                     for v_chequera in c_chequera(p_cuenta_cheque,p_numero_cheque) loop    
                         UPDATE CHEQUE SET ESTADO='RECHAZADO', FECHA=sysdate where NUMERO=p_numero_cheque and CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera;
-                    end loop; 
+                    end loop;
                     number_on_hand:=20030;
                     RAISE out_of_stock; 
                 END IF;
             ELSE 
                 for v_chequera in c_chequera(p_cuenta_cheque,p_numero_cheque) loop    
                     UPDATE CHEQUE SET ESTADO='RECHAZADO', FECHA=sysdate where NUMERO=p_numero_cheque and CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera;
-                end loop; 
+                end loop;
                 number_on_hand:=20020;
                 RAISE out_of_stock;
             END IF;                
@@ -153,7 +151,6 @@ BEGIN
         WHERE NUMERO=no_cheque AND CHEQUERA_COD_CHEQUERA=v_chequera.cod_chequera
         FOR UPDATE;
     END LOOP;
-    
     SELECT COUNT(COD_CUENTA) into valor 
     FROM CUENTA
     INNER JOIN CHEQUERA

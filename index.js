@@ -388,7 +388,9 @@ app.get('/sign-up',function(req,res){
 
 
 
-
+app.get('/transacciones', function (req, res) {
+    res.sendFile(path.join(__dirname+'/src/template/auditoria/transacciones.html'));
+});
 
 
 
@@ -1056,7 +1058,7 @@ io.on('connection', function(socket) {
             data.p_cheque=parseInt(p_cheque);
             data.p_monto=parseFloat(p_monto);
             console.log('BeginTransaccion:'+(indeXx));
-            database.simpleExecute(strQuery,data).then((result)=>{
+            database.simpleExecute(strQuery,data).then(async(result)=>{
                 console.log(result);
                 console.log('FinishTransaccion:'+(indeXx));
                 socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
@@ -1168,6 +1170,90 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:'Error al generar el archivo OUT del banco'+id});
         }
      });
+     socket.on('transacciones',async function(data){
+        try {
+            if(data==null){
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, T.USUARIO_COD_USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                socket.emit('listatrans',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, T.USUARIO_COD_USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND a.banco_cod_lote = " + data + " ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                socket.emit('listatrans',result.rows);
+            }
+
+            
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
+    socket.on('transacciones-fecha',async function(data){
+        try{
+            if(data == null){
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, T.USUARIO_COD_USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                socket.emit('listatrans-fecha',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, T.USUARIO_COD_USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND t.fecha = TO_DATE('" + data+ "','DD-MM-YYYY') ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                console.log(select + from + where + and1 + and2 + group);
+                socket.emit('listatrans-fecha',result.rows);
+            }
+        }catch(err){
+            console.error(err);
+        }
+    });
+    socket.on('transacciones-cuenta',async function(data){
+        try{
+            if(data == null){
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1+ group);
+                socket.emit('listatrans-cuenta',result.rows);
+            }
+            else{
+                await database.initialize(); 
+                const select = "SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, U.USUARIO, T.CUENTA_COD_CUENTA ";
+                const from = "FROM TRANSACCION T, AGENCIA A, USUARIO U ";
+                const where = "WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia ";
+                const and1 = "AND t.usuario_cod_usuario= u.cod_usuario ";
+                const and2 = "AND t.cuenta_cod_cuenta = " + data  + " ";
+                const group = "ORDER BY t.cod_transaccion ";
+                const result = await database.simpleExecute(select + from + where + and1 + and2 + group);
+                socket.emit('listatrans-cuenta',result.rows);
+            }
+        }catch(err){
+            console.error(err);
+        }
+    });
 });
 
 function readFile(fileName) {
