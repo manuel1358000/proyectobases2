@@ -129,7 +129,7 @@ function insertDatainJSON2(item,ii,objN){
 
 function _recordInOKinTemp(){
     if(!isOutForOther){
-        _dataFileJSON.map(it=>{
+        _dataFileJSON.map(async (it)=>{
             var idName="_spinnerBulkLoad"+(it.index);
             document.getElementById(idName).style.display="inline-block";
             try {
