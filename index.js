@@ -893,11 +893,11 @@ io.on('connection', function(socket) {
             console.error(err);
         }
     });
-    socket.on('numero_cheques',async function(data){
+    socket.on('numero_cheques',async function({id_cuenta,...otherParams}){
         try {
             await database.initialize(); 
-            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+data['cuenta']);
-            socket.emit('correlativo',result.rows[0]);
+            const result = await database.simpleExecute('select sum(no_cheques) as correlativo from chequera where cuenta_cod_cuenta='+id_cuenta);
+            socket.emit('correlativo',{'result':result.rows[0],id_cuenta:id_cuenta,...otherParams});
         } catch (err) {
             console.error(err);
         }
@@ -980,10 +980,11 @@ io.on('connection', function(socket) {
         } catch (error) {
         }
     });
-    socket.on('execute-bulk-load',function(data){
+    socket.on('execute-bulk-load',async function(data){
         var index = data.index;
         delete data.index;
         try {
+            await database.initialize();
             var strQuery ="BEGIN DEPOSITO_CHEQUE(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             var strQuery2 ="BEGIN DEPOSITO_CHEQUE_EXTERNO(:p_usuario,:p_agencia,:p_cuenta_destino,:p_cuenta_cheque,:p_banco_actual,:p_banco_cheque,:p_numero_cheque,:p_fecha_cheque,:p_monto_cheque); END;";
             data.p_usuario=parseInt(data.p_usuario);
@@ -1035,6 +1036,69 @@ io.on('connection', function(socket) {
             //socket.emit('message-action',{message:err});
         }
     });
+
+    socket.on('execute-bulk-load-in-tmp',async function(data){
+        const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_estado,index} = data;
+        var strNameGrabador='GRABAR_CHEQUES_COMPENSADOS';
+        var indeXx = data.index;
+        delete data.index;
+        try {
+            await database.initialize();
+            if(data['operando']){
+                delete data.operando;
+                strNameGrabador='OPERAR_CHEQUES_COMPENSADOS';
+            }
+            var strQuery ="BEGIN "+strNameGrabador+"(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_estado); END;";
+            data.p_banco=parseInt(p_banco);
+            data.p_referencia=parseInt(p_referencia);
+            data.p_cuenta=parseInt(p_cuenta);
+            data.p_cheque=parseInt(p_cheque);
+            data.p_monto=parseFloat(p_monto);
+            console.log('BeginTransaccion:'+(indeXx));
+            database.simpleExecute(strQuery,data).then((result)=>{
+                console.log(result);
+                console.log('FinishTransaccion:'+(indeXx));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
+            }).catch((e)=>{
+                console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:indeXx});
+            });
+        } catch (err) {
+            console.log('ErrorTransaccion:'+indeXx);
+            console.log(err);
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:indeXx});
+        }
+    });
+
+    socket.on('execute-bulk-load-out-tmp',async function(data){
+        const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_banco_destino} = data;
+        var indeXx = data.index;
+        delete data.index;
+        try {
+            await database.initialize();
+            var strQuery ="BEGIN GRABAR_CHECOMP_PROPIO(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_banco_destino); END;";
+            data.p_banco=parseInt(p_banco);
+            data.p_referencia=parseInt(p_referencia);
+            data.p_cuenta=parseInt(p_cuenta);
+            data.p_cheque=parseInt(p_cheque);
+            data.p_monto=parseFloat(p_monto);
+            data.p_banco_destino=parseFloat(p_banco_destino);
+            console.log('BeginTransaccion:'+(indeXx));
+            database.simpleExecute(strQuery,data).then((result)=>{
+                console.log(result);
+                console.log('FinishTransaccion:'+(indeXx));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
+            }).catch((e)=>{
+                console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:indeXx});
+            });
+        } catch (err) {
+            console.log('ErrorTransaccion:'+indeXx);
+            console.log(err);
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:indeXx});
+        }
+    });
+
     socket.on('get-data-from-last-file',async function(data){
        try {
            

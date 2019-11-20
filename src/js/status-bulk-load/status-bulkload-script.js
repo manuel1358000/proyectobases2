@@ -2,10 +2,15 @@ var _dataFileJSON = [];
 var _checksExtern = false;
 var _storage={}
 var header='';
+var isOkGrabador=false;
+var isOutForOther=false;
 async function loadBulkLoadOwnChecks(dataFile)  {
     var separator =',';
     const {content,option_bulkLoad,filename} = dataFile;
     if(option_bulkLoad=='Archivos Conciliacion OUT' || option_bulkLoad=='Archivos Conciliados IN[OK]'){
+        if(option_bulkLoad=='Archivos Conciliacion OUT'){
+            isOutForOther=true;
+        }
         _storage = dataFile;
         _checksExtern=true;
         separator='|';
@@ -26,7 +31,11 @@ async function loadBulkLoadOwnChecks(dataFile)  {
              ds.forEach(
                  (item,ij)=>{
                     try {
-                         insertDatainJSON(item,ij,objN);    
+                        if(_checksExtern){
+                            insertDatainJSON2(item,ij,objN);  
+                        }else{
+                            insertDatainJSON(item,ij,objN);
+                        }
                     } catch (error) {
                         console.log(error);
                     }
@@ -94,20 +103,88 @@ function insertDatainJSON(item,ii,objN){
             break;    
     }
 }
+
+function insertDatainJSON2(item,ii,objN){
+    switch(ii){
+        case 0:
+                objN['p_banco']=item;
+            break;
+        case 1:
+                objN['p_referencia']=item;
+            break;
+        case 2:
+                objN['p_cuenta']=item;
+            break;
+        case 3:
+                objN['p_cheque']=item;
+            break;
+        case 4:
+                objN['p_monto']=item;
+            break;
+        case 5:
+                objN['p_estado']=item;
+            break; 
+    }
+}
+
+function _recordInOKinTemp(){
+    if(!isOutForOther){
+        _dataFileJSON.map(it=>{
+            var idName="_spinnerBulkLoad"+(it.index);
+            document.getElementById(idName).style.display="inline-block";
+            try {
+                socket.emit('execute-bulk-load-in-tmp',it);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }else{
+        _dataFileJSON.map(it=>{
+            var idName="_spinnerBulkLoad"+(it.index);
+            document.getElementById(idName).style.display="inline-block";
+            try {
+                socket.emit('execute-bulk-load-out-tmp',{...it,p_banco_destino:10});
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+} 
+
 function startBulkLoad(){
-    var numero=0;
     _dataFileJSON.map(it=>{
-        numero++;
         console.log(it);
         var idName="_spinnerBulkLoad"+(it.index);
         try {
-            console.log(numero);
             document.getElementById(idName).style.display="inline-block";
-            socket.emit('execute-bulk-load',it);
+            if(_checksExtern){
+                //socket.emit('execute-bulk-load-in',it);
+            }else{
+                socket.emit('execute-bulk-load',it);
+            }
+            
         } catch (error) {
             console.log(error);
         }
     });
+}
+
+function startOperator(){
+    if(isOkGrabador){
+        _dataFileJSON.map(it=>{
+            var _transactionItem = document.getElementById("_transactionItem"+(it.index));
+            _transactionItem.style.display="none";
+            _transactionItem.innerText='';
+
+            var idName="_spinnerBulkLoad"+(it.index);
+            try {
+                document.getElementById(idName).style.display="inline-block";
+                socket.emit('execute-bulk-load-in-tmp',{...it,operando:true});     
+            } catch (error) {
+                console.log(error);
+            }
+        }); 
+    }
 }
 
 function startRecorder(){
@@ -154,10 +231,11 @@ function initRecorder(content){
 
 function finishedRecorderOperation({result}){
     if(result){
-        alert('Verificacion de Grabador Correcta');
+        isOkGrabador=true;
         document.getElementById('_spinnerWaitRecorder').style.display='none';
         document.getElementById('_buttonStartRecorder').disabled=true;
         document.getElementById('_buttonStartBulkLoad').disabled=false;
+        setTimeout(() => {  _recordInOKinTemp(); },1000);
     }else{
         alert('NoDocumentos No Concuerda\no Valor No Concuerda Con Suma del Valor de Cheques');
         document.getElementById('_spinnerWaitRecorder').style.display='none';

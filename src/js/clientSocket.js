@@ -67,7 +67,8 @@ const errorTypes={
   '20010':'FECHA INVALIDA',
   '20020':'CHEQUE NO PERTENECE A LA CUENTA',
   '20030':'CHEQUE PAGADO/EXTRAVIADO/CANCELADO',
-  '20040':'CUENTA CHEQUE SIN FONDOS'
+  '20040':'CUENTA CHEQUE SIN FONDOS',
+  '20060':'COMPENSACION RECHAZADA'
 }
 
 //Obtiene listado de bancos para generator out
@@ -77,4 +78,20 @@ socket.on('receive-all-banks-generator',function(data){
 
 socket.on('redirect-page-no-reload',function(data){
   document.location.href = data.url;
+});
+
+socket.on('correlativo', function({result, id_cuenta, fecha_emision, estado, ultimo_cheque, id_numcheque }) {
+  console.log('correlativoXXXX');
+  console.log(result['CORRELATIVO']);
+  if(result['CORRELATIVO']!=null){
+  ultimo_cheque+=parseInt(result['CORRELATIVO'])
+  }
+  var valores={
+  no_cheques:id_numcheque,
+  fecha_emision:fecha_emision,
+  estado:estado,
+  ultimo_cheque:ultimo_cheque,
+  cuenta_cod_cuenta:id_cuenta
+    };
+  socket.emit('solicitar_chequera',valores);
 });

@@ -35,6 +35,7 @@ function mostrarModal(codcuenta){
 }
 
 function solicitarChequera(){
+    console.log('solicitarChequera');
     if(cod_cuentaXX==null) return;
     document.getElementById("formSolicitarChequera").style.display='none';
 	var id_cuenta=parseInt(cod_cuentaXX);
@@ -43,18 +44,7 @@ function solicitarChequera(){
     var fecha_emision=ts.getFullYear()+'-'+("0" + (ts.getMonth() + 1)).slice(-2)+'-'+("0" + (ts.getDay() + 1)).slice(-2);       
 	let estado='activa';
 	let ultimo_cheque=parseInt(id_numcheque);
-	socket.emit('numero_cheques',{cuenta:id_cuenta});
-	socket.on('correlativo', function(data) {
-		if(data['CORRELATIVO']!=null){
-			ultimo_cheque+=parseInt(data['CORRELATIVO'])
-		}
-		var valores={
-			no_cheques:id_numcheque,
-			fecha_emision:fecha_emision,
-			estado:estado,
-			ultimo_cheque:ultimo_cheque,
-			cuenta_cod_cuenta:id_cuenta
-        };
-		socket.emit('solicitar_chequera',valores);
-    });
+	socket.emit('numero_cheques',{ id_cuenta:id_cuenta, fecha_emision:fecha_emision, estado:estado, ultimo_cheque:ultimo_cheque,id_numcheque:id_numcheque });
+    
+    
 }
