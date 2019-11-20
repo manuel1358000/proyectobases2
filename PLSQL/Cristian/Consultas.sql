@@ -35,13 +35,27 @@ FROM cuenta c;
 SELECT t.cuenta_cod_cuenta as "cuenta" , count(t.cuenta_cod_cuenta) as "NumeroDep"
 FROM transaccion t
 WHERE t.agencia_cod_agencia = 2 --aqui va el numero de agencia
-AND t.tipo = 'Deposito'
+AND t.tipo = 'DEPOSITO'
 GROUP BY t.cuenta_cod_cuenta;
 
 --Consulta de clientes con mayor numero de depositos
-SELECT t.cuenta_cod_cuenta as "cuenta" , count(t.valor) as "NumeroCheq"
+SELECT t.cuenta_cod_cuenta as "cuenta" , SUM(t.valor) as "NumeroCheq"
 FROM transaccion t
 WHERE t.agencia_cod_agencia = 1 --aqui va el numero de agencia
 AND t.tipo= 'RETIRO'
 AND t.naturaleza = 'CHEQUE'
 GROUP BY t.cuenta_cod_cuenta;
+
+--consultar los clientes que nunca han hecho un deposito
+SELECT cl.nombres
+FROM cliente cl, cuenta cu
+WHERE cl.cod_cliente = cu.cod_cuenta
+AND cu.cod_cuenta NOT IN( 
+                            SELECT t.cuenta_cod_cuenta
+                            FROM transaccion t
+                            WHERE t.agencia_cod_agencia = 3 --aqui va el codigo de agencia
+                            AND t.tipo = 'DEPOSITO'
+                        );
+
+select * from cliente;
+select * from agencia;
