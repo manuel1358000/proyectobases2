@@ -18,16 +18,27 @@
       </div>
       <ul class="nav navbar-nav">
         <li class="active"><a href="/">Inicio</a></li>
-        <li><a href="/clients">Clientes</a></li>
-        <li><a href="/usuarios">Usuarios</a></li>
-        <!--<li><a href="/solicitar_chequera">Solicitar Chequera</a></li>-->
-        <li><a href="/bancos">Bancos</a></li>
-        <li><a href="/agencias">Agencias</a></li>
-        <li><a href="/roles">Roles</a></li>
-        <li><a href="/cancelacion_cheque">Cheque Robado/Extraviado</a></li>
-        <li><a href="/consulta_saldo">Consulta Saldos</a></li>
-        <li><a href="/transferencia_fondos">Transferencia de Fondos</a></li>
 
+        <li class="dropdown">
+          <div class="dropdown">
+              <button class="dropbtn">CRUD</button>
+              <div class="dropdown-content">
+
+                <a href="/clients">Clientes</a>
+                <a href="/usuarios">Usuarios</a>
+                <!--<li><a href="/solicitar_chequera">Solicitar Chequera</a></li>-->
+                <a href="/bancos">Bancos</a>
+                <a href="/agencias">Agencias</a>
+                <a href="/roles">Roles</a>
+                <option class="select-hr"></option>
+                <a href="/cancelacion_cheque">Cheque Robado/Extraviado</a>
+                <a href="/consulta_saldo">Consulta Saldos</a>
+                <a href="/transferencia_fondos">Transferencia de Fondos</a>
+
+              </div>
+            </div>
+      </li>
+      
 
         <li class="dropdown">
             <div class="dropdown">
@@ -35,8 +46,8 @@
                 <div class="dropdown-content">
                   <a href="/ingresar-cheque">Pagar Cheque</a>
                   <option class="select-hr"></option>
-                  <a href="#">Generador Archivo OUT</a>
-                  <a href="#">Cargar Masiva de Cheques</a>
+                  <a href="/generator-file-out">Generador Archivo OUT</a>
+                  <a href="form-upload">Cargar Masiva de Cheques</a>
                 </div>
               </div>
         </li>
@@ -51,6 +62,18 @@
                 </div>
               </div>
         </li>
+
+        <li class="dropdown">
+            <div class="dropdown">
+                <button class="dropbtn">Estadisticas</button>
+                <div class="dropdown-content">
+                  <a href="/list-saldos">Cliente Con Mayor Numero de Depositos</a>
+                  <option class="select-hr"></option>
+                  
+                </div>
+              </div>
+        </li>
+
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>

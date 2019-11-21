@@ -1,0 +1,56 @@
+<div data-include="/common/header.html"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+
+<div class="container">
+   <!-- write your html code here-->
+   <h3>Consultas Estadisticas</h3>
+ </div>
+ 
+ <div class="container" style=" align-content: center">
+        
+        <hr>
+        <div class="row">
+            <div class="col-sm-2">
+                <button onclick="consulta1()" class="btn btn-success">Grafica de Saldos</button><!--BARRAS-->          
+            </div>
+            <div class="col-sm-3">
+                <button onclick="consulta2()" class="btn btn-success">Clientes Mayor # Depositos</button>          <!--TABLA-->
+            </div>
+            <div class="col-sm-3">
+                <button onclick="consulta3()" class="btn btn-success">Clientes Mayor # Cheques Pagados</button>    <!-- TABLA -->
+            </div>
+            <div class="col-sm-3">
+                    <button onclick="consulta4()" class="btn btn-success">Clientes Sin Depositos</button>    <!-- TABLA -->
+            </div>
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+                <canvas id="bar-chart" width="800" height="450"></canvas>
+        </div>
+        <div class="row">
+                <center>
+                    <h1 id='_tableInformation'></h1>
+                    
+                </center>
+                <center>
+                        <table class="table table-striped" id="_tableConsults">
+                                <thead id='_head_TableStatics'>
+                                </thead>
+                                <tbody id="_body_TableStatics">                     
+                                </tbody>
+                        </table>
+                </center>
+        </div>
+
+    </div>
+</body>
+ <script src="/js/csi.min.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/clientSocket.js"></script>
+ <script src="/js/estadisticas/list-saldos-script.js"></script>
+</html>
