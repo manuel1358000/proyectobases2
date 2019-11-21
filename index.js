@@ -60,7 +60,12 @@ app.get('/generator-file-out',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/GEN/generator-out.html'));
 });
 
+app.get('/generator-file-in',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/status-bulk-load-extern/GEN/generator-in.html'));
+});
+
 app.get('/downloadOut', (req, res) => res.download(currentEdit.file_generated_out))
+app.get('/downloadIn', (req, res) => res.download(currentEdit.file_generated_in))
 
 app.post('/upload', function(req, res) {
     
@@ -1122,12 +1127,44 @@ io.on('connection', function(socket) {
     });
 
     socket.on('execute-bulk-load-out-tmp',async function(data){
+        const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto,p_banco_destino} = data;
+        var strNameGrabador='GRABAR_CHECOMP_PROPIO';
+        var indeXx = data.index;
+        delete data.index;
+        try {
+            await database.initialize();
+            
+            var strQuery ="BEGIN "+strNameGrabador+"(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_banco_destino); END;";
+            data.p_banco=parseInt(p_banco);
+            data.p_referencia=parseInt(p_referencia);
+            data.p_cuenta=parseInt(p_cuenta);
+            data.p_cheque=parseInt(p_cheque);
+            data.p_monto=parseFloat(p_monto);
+            data.p_banco_destino=parseFloat(p_banco_destino);
+            console.log('BeginTransaccion:'+(indeXx));
+            database.simpleExecute(strQuery,data).then(async(result)=>{
+                console.log(result);
+                console.log('FinishTransaccion:'+(indeXx));
+                socket.emit('response-bulk-load-item',{message:'Transaccion Exitosa',failed:false,num:indeXx});
+            }).catch((e)=>{
+                console.log(e);
+                socket.emit('response-bulk-load-item',{message:e.errorNum+'',failed:true,num:indeXx});
+            });
+        } catch (err) {
+            console.log('ErrorTransaccion:'+indeXx);
+            console.log(err);
+            socket.emit('response-bulk-load-item',{message:err,failed:true,num:indeXx});
+        }
+    });
+    
+
+    socket.on('execute-bulk-load-out_operator',async function(data){
         const {p_banco, p_referencia, p_cuenta, p_cheque, p_monto, p_banco_destino} = data;
         var indeXx = data.index;
         delete data.index;
         try {
             await database.initialize();
-            var strQuery ="BEGIN GRABAR_CHECOMP_PROPIO(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_banco_destino); END;";
+            var strQuery ="BEGIN OPERAR_CHECOMP_PROPIO(:p_banco,:p_referencia,:p_cuenta,:p_cheque,:p_monto,:p_banco_destino); END;";
             data.p_banco=parseInt(p_banco);
             data.p_referencia=parseInt(p_referencia);
             data.p_cuenta=parseInt(p_cuenta);
@@ -1218,6 +1255,34 @@ io.on('connection', function(socket) {
             socket.emit('message-action',{message:'Error al generar el archivo OUT del banco'+id});
         }
      });
+
+     socket.on('generate-in-file-bank',async function({id}){
+
+        try{
+            await database.initialize();
+            var query='SELECT BANCO,COD_CHEQUE_TEMPORAL_PROPIO AS REFERENCIA,CUENTA,CHEQUE AS NO_CHEQUE,VALOR AS MONTO, ESTADO AS ESTADO '+
+            'FROM CHEQUE_TEMPORAL_PROPIO '+
+            'WHERE BANCO=1 AND LOTE_COD_LOTE IS NULL';
+
+            const result=await database.simpleExecute(query);
+            console.log(query);
+            console.log(result);
+            var strOut=result.rows.map( ({BANCO,REFERENCIA,CUENTA,NO_CHEQUE,MONTO,ESTADO})=>{
+                return BANCO+'|'+REFERENCIA+'|'+CUENTA+'|'+NO_CHEQUE+'|'+MONTO+'|'+ESTADO;
+            }).join('\n');
+            var total = result.rows.reduce((previus,{MONTO})=>previus=previus+MONTO,0);
+            console.log(total);
+
+            var filename_=__dirname+'/src/assets/IN_'+id+'_'+result.rows.length+'_'+total+'.txt'
+            await writeFile(filename_,strOut);
+            currentEdit['file_generated_in']=filename_;
+            socket.emit('redirect-page-no-reload',{url:'/downloadIn'});
+        }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'Error al generar el archivo IN del banco'+id});
+        }
+     });
+
      socket.on('transacciones',async function(data){
         try {
             if(data==null){
@@ -1407,8 +1472,8 @@ async function writeFile(Filename,data){
     await fs.writeFileSync(Filename, data);
 }
 
-server.listen(3000,'192.168.0.17', function() {
-	console.log('Servidor corriendo en http://192.168.0.17:3000');
+server.listen(3000,'192.168.43.96', function() {
+	console.log('Servidor corriendo en http://192.168.43.96:3000');
 });
 
 

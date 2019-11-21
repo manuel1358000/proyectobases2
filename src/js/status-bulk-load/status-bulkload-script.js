@@ -143,6 +143,7 @@ function _recordInOKinTemp(){
             var idName="_spinnerBulkLoad"+(it.index);
             document.getElementById(idName).style.display="inline-block";
             try {
+                console.log('emit:'+it.index);
                 socket.emit('execute-bulk-load-out-tmp',{...it,p_banco_destino:10});
             } catch (error) {
                 console.log(error);
@@ -157,8 +158,8 @@ function startBulkLoad(){
         var idName="_spinnerBulkLoad"+(it.index);
         try {
             document.getElementById(idName).style.display="inline-block";
-            if(_checksExtern){
-                //socket.emit('execute-bulk-load-in',it);
+            if(isOutForOther){
+                socket.emit('execute-bulk-load-out_operator',{...it,p_banco_destino:10});
             }else{
                 socket.emit('execute-bulk-load',it);
             }
@@ -215,7 +216,6 @@ function initRecorder(content){
     var structHeader = headerFile.split('_');
     var foundValue = structHeader.length<=4? structHeader[3]:0;
     var foundNoDocuments = structHeader.length>=3? structHeader[2]:0;
-    
     if(foundValue && foundNoDocuments){
         //Filter lines
         lines = lines.filter(el=>{  return el != null && el!='' });

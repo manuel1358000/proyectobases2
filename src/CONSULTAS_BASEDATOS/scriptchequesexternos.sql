@@ -1,3 +1,66 @@
+CREATE OR REPLACE PROCEDURE OPERAR_CHECOMP_PROPIO(
+p_banco number,
+p_referencia number,
+p_cuenta number,
+p_cheque number,
+p_monto float,
+p_banco_destino number
+)IS
+out_of_stock EXCEPTION;
+number_on_hand NUMBER:=666;
+v_error varchar2(32000);
+cursor c_cuenta_destino(pp_cuenta_destino number) is
+select saldo, disponible 
+from cuenta
+where cod_cuenta=pp_cuenta_destino
+for update of saldo;    
+BEGIN
+    --verificar si el cheque existe en la cuenta
+    --verificar si el cheque ya fue cambiado
+    --verificar si la cuenta tiene fondos
+    IF VERIFICAR_CUENTA(p_cuenta,p_cheque)=1 THEN
+        IF VERIFICAR_ESTADO(p_cuenta,p_cheque,p_monto)=1 THEN
+            for v_destino in c_cuenta_destino(p_cuenta_destino) loop
+                if confirmar then
+                    INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,cuenta_cod_cuenta) 
+                    values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','CHEQUE',v_destino.saldo,p_monto_cheque,v_destino.saldo+p_monto_cheque,'1','','','123456',p_agencia,p_usuario,p_cuenta_destino);                 
+                    UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto_cheque, DISPONIBLE=DISPONIBLE+p_monto_cheque  WHERE cod_cuenta=p_cuenta_destino;
+                    UPDATE CHEQUE_TEMPORAL_PROPIO SET ESTADO='OK' WHERE CUENTA=p_cuenta and CHEQUE=p_cheque;
+                end if;
+            end loop;
+            commit;
+        ELSE
+            number_on_hand:=20030;
+            RAISE out_of_stock;
+        END IF;
+    ELSE
+        number_on_hand:=20020;
+        RAISE out_of_stock;
+    END IF;
+    exception
+        when out_of_stock then
+            IF number_on_hand=20010 THEN
+                raise_application_error(-20010,'FECHA INVALIDA');
+            ELSIF number_on_hand=20020 THEN
+                raise_application_error(-20020,'CHEQUE NO PERTENECE A LA CUENTA');
+            ELSIF number_on_hand=20030 THEN
+                raise_application_error(-20030,'CHEQUE PAGADO/EXTRAVIADO/CANCELADO');
+            ELSIF number_on_hand=20040 THEN
+                raise_application_error(-20040,'CUENTA CHEQUE SIN FONDOS');
+            END IF;
+            commit;
+        when others then 
+        v_error := SQLERRM;
+        raise_application_error(-20000,v_error);
+        commit;
+    commit;
+END OPERAR_CHECOMP_PROPIO;
+
+
+
+
+
+
 --ES NECESARIO ENVIAR LA FECHA DEL CHEQUE YA QUE SE TIENE QUE VERIFICAR
 CREATE OR REPLACE PROCEDURE GRABAR_CHECOMP_PROPIO(
 p_banco number,
@@ -17,16 +80,16 @@ END GRABAR_CHECOMP_PROPIO;
 
 
 
-
-
-
-
-
-
-
-
-
 select * from cheque_temporal_propio;
+
+
+select * from cuenta;
+
+select * from chequera;
+select * from cheque_temporal_propio;
+
+delete from cheque_temporal_propio where 1=1;
+
 
 
 CREATE OR REPLACE PROCEDURE OPERAR_CHEQUES_COMPENSADOS(
@@ -249,12 +312,16 @@ END VERIFICAR_CHEQUE_EXTERNO;
 
 
 delete from cheque_temporal where 1=1;
+delete from cheque_temporal_propio where 1=1;
 UPDATE CHEQUE SET MONTO=0, ESTADO='GENERADO' where numero>0;
-update cuenta set saldo=90000, disponible=90000, reserva=0 where cod_cuenta=7;
-update cuenta set saldo=90000, disponible=90000, reserva=0 where cod_cuenta=1;
+update cuenta set saldo=30000, disponible=30000, reserva=0 where cod_cuenta=1;
+update cuenta set saldo=20000, disponible=20000, reserva=0 where cod_cuenta=4;
+update cuenta set saldo=40000, disponible=40000, reserva=0 where cod_cuenta=7;
 commit;
 delete from transaccion where 1=1;
 commit;
+
+
 
 
 
@@ -379,3 +446,4 @@ SELECT * FROM CUENTA;
 
 SELECT * FROM TRANSACCION;
 
+DELETE FROM TRANSACCION WHERE COD_TRANSACCION=30889;

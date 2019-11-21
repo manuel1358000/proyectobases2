@@ -20,3 +20,7 @@ function generarFileOUT(){
     socket.emit('generate-out-file-bank',{id:document.getElementById("_selectBank").value});
     //document.location.href = '/downloadOut'
 }
+
+function generarFileIN(){
+    socket.emit('generate-in-file-bank',{id:10});
+}
