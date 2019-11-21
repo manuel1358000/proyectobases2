@@ -15,12 +15,16 @@ function  pagar_ingresarCheque(){
     Object.keys(_object).map(el=> {
         if(el=='p_monto_cheque'){
             _object[el]=parseFloat(document.getElementById(el).value);
+        }else if(el=='p_fecha_cheque'){
+            _object[el]=document.getElementById(el).value;
         }else{
             _object[el]=parseInt(document.getElementById(el).value);
         }
     });
     var findNull=Object.values(_object).filter(el=> el==null||el=='');
-    if(findNull){ 
+    console.log(_object);
+    console.log(findNull);
+    if(findNull.length>0){ 
         alert('Llene Todos Los Campos'); 
         return;
     }else{

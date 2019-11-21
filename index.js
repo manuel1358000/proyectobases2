@@ -1070,7 +1070,7 @@ io.on('connection', function(socket) {
                     socket.emit('message-action',{message:'Transaccion Exitosa',failed:false,num:index});
                 }).catch((e)=>{
                     console.log(e);
-                    socket.emit('message-action',{message:e.errorNum+''});
+                    socket.emit('message-action',{message:errorTypes[e.errorNum]+''});
                 });
             }
         } catch (err) {
@@ -1314,3 +1314,13 @@ async function writeFile(Filename,data){
 server.listen(3000,'192.168.1.46', function() {
 	console.log('Servidor corriendo en http://192.168.1.46:3000');
 });
+
+
+
+const errorTypes={
+    '20010':'FECHA INVALIDA',
+    '20020':'CHEQUE NO PERTENECE A LA CUENTA',
+    '20030':'CHEQUE PAGADO/EXTRAVIADO/CANCELADO',
+    '20040':'CUENTA CHEQUE SIN FONDOS',
+    '20060':'COMPENSACION RECHAZADA'
+  }
