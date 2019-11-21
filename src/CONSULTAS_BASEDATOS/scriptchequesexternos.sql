@@ -257,10 +257,17 @@ delete from transaccion where 1=1;
 commit;
 
 
+
+
+select * from cuenta;
+
+
+
 select * from cheque_temporal;
 
 select * from transaccion;
 select * from cuenta;
+select * from chequera;
 
 select * from cheque_temporal;
 select * from cuenta;
@@ -330,11 +337,45 @@ commit;
 
 
 
+SELECT T.COD_TRANSACCION, T.FECHA, T.TIPO, T.NATURALEZA, T.SALDO_INICIAL, T.VALOR, T.SALDO_FINAL, T.AUTORIZACION, T.RECHAZO, T.RAZON_RECHAZO, T.DOCUMENTO, A.NOMBRE, T.USUARIO_COD_USUARIO, T.CUENTA_COD_CUENTA 
+FROM TRANSACCION T, AGENCIA A, USUARIO U 
+WHERE T.AGENCIA_COD_AGENCIA = a.cod_agencia 
+AND t.usuario_cod_usuario= u.cod_usuario
+AND t.fecha = TO_DATE('20-NOV-19','YYYY-MM-DD')
+ORDER BY t.cod_transaccion; 
 
 
 
 
 
+CREATE OR REPLACE PROCEDURE DEPOSITO_EFECTIVO(
+    p_usuario number,
+    p_agencia number,
+    p_cuenta number,
+    p_monto float
+)IS
+cursor c_cuenta(pp_cuenta number) is
+select saldo, disponible 
+from cuenta
+where cod_cuenta=pp_cuenta
+for update of saldo; 
+p_saldo float;
+BEGIN
+    SELECT SALDO INTO p_saldo
+    FROM CUENTA
+    WHERE COD_CUENTA=p_cuenta
+    FOR UPDATE;
+    UPDATE CUENTA SET SALDO=DISPONIBLE+RESERVA+p_monto, DISPONIBLE=DISPONIBLE+p_monto  WHERE cod_cuenta=p_cuenta;
+    INSERT INTO transaccion(fecha,tipo,naturaleza,saldo_inicial,valor,saldo_final,autorizacion,rechazo,razon_rechazo,documento,agencia_cod_agencia,usuario_cod_usuario,cuenta_cod_cuenta) 
+    values(TO_DATE(sysdate,'YYYY-MM-DD'),'DEPOSITO','EFECTIVO',p_saldo,p_monto,p_saldo+p_monto,'1','','','123456',p_agencia,p_usuario,p_cuenta);                 
+    commit;
+END DEPOSITO_EFECTIVO;
 
 
+begin DEPOSITO_EFECTIVO(1,1,1,2000); END;
+
+
+SELECT * FROM CUENTA;
+
+SELECT * FROM TRANSACCION;
 

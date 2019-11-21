@@ -352,6 +352,9 @@ app.get('/transferencia_fondos',function(req,res){
     res.sendFile(path.join(__dirname+'/src/template/transferencia_fondos/transferencia_fondos.html'));
 });
 
+app.get('/deposito_efectivo',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/deposito_efectivo/deposito_efectivo.html'));
+});
 
 /**FIN  - TRANSFERENCIA DE FONDOS */
 
@@ -965,6 +968,7 @@ io.on('connection', function(socket) {
             socket.emit('redirect-page',{url:'/transferencia_fondos'});
         }
     });
+    
     socket.on('consulta_saldo',async function(data){
         try{
             await database.initialize();
@@ -1372,6 +1376,20 @@ io.on('connection', function(socket) {
             console.log(err);
         }
     });
+    socket.on('realizar_deposito_efectivo',async function (data){
+        try{
+            await database.initialize();
+            var query='begin DEPOSITO_EFECTIVO('+data['usuario']+','+data['agencia']+','+data['cuenta']+','+data['monto']+'); commit; end;';
+            const result=await database.simpleExecute(query);
+            socket.emit('message-action',{message:'Deposito Realizado'});
+            socket.emit('redirect-page',{url:'/deposito_efectivo'});
+            console.log('Se realizo la transaccion');
+        }catch(err) {
+            console.log(err);
+            socket.emit('message-action',{message:'No se pudo realizar el deposito en efectivo, verificar el log'});
+            socket.emit('redirect-page',{url:'/deposito_efectivo'});
+        }
+    });
 });
 
 function readFile(fileName) {
@@ -1389,8 +1407,8 @@ async function writeFile(Filename,data){
     await fs.writeFileSync(Filename, data);
 }
 
-server.listen(3000,'192.168.1.46', function() {
-	console.log('Servidor corriendo en http://192.168.1.46:3000');
+server.listen(3000,'192.168.0.17', function() {
+	console.log('Servidor corriendo en http://192.168.0.17:3000');
 });
 
 
