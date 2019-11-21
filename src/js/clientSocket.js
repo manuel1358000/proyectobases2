@@ -95,3 +95,22 @@ socket.on('correlativo', function({result, id_cuenta, fecha_emision, estado, ult
     };
   socket.emit('solicitar_chequera',valores);
 });
+
+
+socket.on('generate-bar-chart',function(data){
+  try {
+    _loadBarData(data[0]);  
+  } catch (error) {
+    console.log('Error al generar Grafico de Barras');
+  }
+  
+});
+
+socket.on('generate-table-chart',function({metaData,rows,information}){
+  try {
+    _loadTableData(metaData,rows,information);  
+  } catch (error) {
+    console.log('Error al generar Grafico de Barras');
+  }
+  
+});

@@ -26,6 +26,10 @@ var sess;
 // default options
 app.use(fileUpload());
 
+app.get('/list-saldos',function(req,res){
+    res.sendFile(path.join(__dirname+'/src/template/estadisticas/list-saldos.html')); //listado
+});
+
 app.get('/form-upload', function (req, res) {
     //sess=req.session;
     res.sendFile(path.join(__dirname+'/src/template/file-upload/file-upload.html')); //listado
@@ -1292,6 +1296,80 @@ io.on('connection', function(socket) {
             }
         }catch(err){
             console.error(err);
+        }
+    });
+    //Estadisticas Consulta 1
+    socket.on('list-saldos-accounts',async function(data){
+        try{
+            await database.initialize();
+            var query='SELECT SUM(c.disponible)as Disponible, SUM(c.saldo) as Saldo, SUM(reserva) as Reserva'+
+                        ' FROM cuenta c';
+            const result=await database.simpleExecute(query);
+            console.log(result);
+            socket.emit('generate-bar-chart',result.rows);
+        }catch(err){
+            socket.emit('message-action',{message:'Error al consultar saldos de cuentas'+err});
+            console.log(err);
+        }
+    });
+
+    //Estadisticas Consulta 2   
+    socket.on('clients-greater-deposits',async function(data){
+        try{
+            await database.initialize();
+            var query='SELECT t.cuenta_cod_cuenta as "cuenta" , count(t.cuenta_cod_cuenta) as "NumeroDep" '+
+            'FROM transaccion t '+
+            'WHERE t.agencia_cod_agencia = 1'+
+            'AND t.tipo = \'DEPOSITO\' '+
+            'GROUP BY t.cuenta_cod_cuenta ORDER BY count(t.cuenta_cod_cuenta) DESC';
+            const result=await database.simpleExecute(query);
+            console.log(result);
+            socket.emit('generate-table-chart',{...result,information:'Clientes Con MaYor # de Depositos'});
+        }catch(err){
+            socket.emit('message-action',{message:'Error al consultar clientes con mayor numero de depositos'+err});
+            console.log(err);
+        }
+    });
+    //Estadistica Consulta 3
+    socket.on('clients-greater-checks',async function(data){
+        try{
+            await database.initialize();
+            var query='SELECT t.cuenta_cod_cuenta as "cuenta" , SUM(t.valor) as "NumeroCheq" '+
+            'FROM transaccion t '+
+            'WHERE t.agencia_cod_agencia = 1 '+
+            'AND t.tipo= \'RETIRO\' '+
+            'AND t.naturaleza = \'CHEQUE\' '+
+            'GROUP BY t.cuenta_cod_cuenta';
+            console.log(query);
+            const result=await database.simpleExecute(query);
+            console.log(result);
+            socket.emit('generate-table-chart',{...result,information:'Clientes Con MaYor # Cheques'});
+        }catch(err){
+            socket.emit('message-action',{message:'Error al consultar clientes con mayor numero de depositos'+err});
+            console.log(err);
+        }
+    });
+    //Estadistica Consulta 4
+    socket.on('clients-without-deposit',async function(data){
+        try{
+            await database.initialize();
+            var query='SELECT cl.nombres '+
+            'FROM cliente cl, cuenta cu '+
+            'WHERE cl.cod_cliente = cu.cod_cuenta '+
+            'AND cu.cod_cuenta NOT IN( ' +
+                                        'SELECT t.cuenta_cod_cuenta '+
+                                        'FROM transaccion t '+
+                                        'WHERE t.agencia_cod_agencia = 1 '+
+                                        'AND t.tipo = \'DEPOSITO\' '+
+                                    ')';
+            console.log(query);
+
+            const result=await database.simpleExecute(query);
+            socket.emit('generate-table-chart',{...result,information:'Clientes Sin Depositos'});
+        }catch(err){
+            /*socket.emit('message-action',{message:'No se pudo realizar la consulta de saldo'});
+            socket.emit('redirect-page',{url:'/consulta_saldo'});*/
+            console.log(err);
         }
     });
 });
